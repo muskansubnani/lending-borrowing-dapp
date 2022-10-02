@@ -11,7 +11,6 @@ contract LendBorrowContract {
     }
 
     enum LenderStatus {
-        PENDING,
         ACTIVE,
         MATURED
     }
@@ -35,17 +34,16 @@ contract LendBorrowContract {
         uint monthlyDeposit;
     }
 
-   
-
     struct Lend {
         uint Id;
         address lender;
-        uint fullAmount;
+        uint lendingAmount;
         uint rateOfReturn;
-        uint returnAmountPerDay; // storing return amount per day for now ( something to discuss)
-        uint startDate;//stored in unix epoch no datetime in solidity
-        uint maturityDate; //stored in unix epoch no datetime in solidity
-        uint latestDateOfInterestRedeemed;
+        uint interestEarnedPerDay; // storing return amount per day for now ( something to discuss)
+        uint startTime;//stored in unix epoch no datetime in solidity
+        uint duration; //stored in unix epoch no datetime in solidity
+        LenderStatus status;
+        uint latestDateOfInterestRedeemed; //stored in unix epoch no datetime in solidity
     }
 
     Loan[] public loans;
@@ -58,15 +56,18 @@ contract LendBorrowContract {
     mapping(uint => uint) public lendingReturnRates;
 
     // emit function for logging 
+    event LogLoanCreation(uint indexed _loanId,address indexed _borrower, uint indexed _amount);
     event LogRetrievedLoan(uint indexed _loanId, address indexed _borrower, uint indexed _amountRetrieved);
     event LogLoanDeposit(address indexed _borrower, uint indexed _depositAmount);
     event LogLoanPaid(address indexed _borrower, uint indexed _loanID, uint indexed _paidBack);
 
+    event LogLenderCreation(uint indexed _lendId,address indexed _lender, uint indexed _amount);
+
     constructor() {
       liquidityAvailable = 0;
     
-      borrowingInterestRates[1] = 8; // 1 year => 8% interest
-      borrowingInterestRates[2] = 9; // 2 year => 9% interest
+      borrowingInterestRates[1] = 10; // 1 year => 10% interest
+      borrowingInterestRates[2] = 11; // 2 year => 11% interest
 
       lendingReturnRates[1] = 5; // 1 year => 5% return
       lendingReturnRates[2] = 6;// 2 year => 6% return
@@ -123,6 +124,9 @@ contract LendBorrowContract {
                 monthlyDeposit
                 ));
 
+
+        emit LogLoanCreation(loanId, msg.sender, _loanAmount);
+
         return loanId;
     }
 
@@ -140,6 +144,9 @@ contract LendBorrowContract {
         // set the full amount to 0 first
         loans[_loanId].fullAmount = 0;
 
+        // update liquidity value  need to discuss update here or  during loan creation?
+        liquidityAvailable = liquidityAvailable - loans[_loanId].loanAmount;
+
         // transfer funds to the caller
         (bool success, ) = msg.sender.call{value: msg.value}("");
 
@@ -155,9 +162,13 @@ contract LendBorrowContract {
         require(msg.value == (loans[_loanId].fullAmount), "You must pay the full loan amount includinginterest");
         require(loans[_loanId].status == LoanStatus.ACTIVE, "Loan status must be ACTIVE");
 
-        loans[_loanId].status = LoanStatus.REPAID;
+        
         (bool success, ) = payable(address(this)).call{value: msg.value}("");
         require(success, "Error: Transfer failed.");
+
+        loans[_loanId].status = LoanStatus.REPAID;
+
+        liquidityAvailable = liquidityAvailable + msg.value;  // update liquidity pool back
 
         emit LogLoanPaid(msg.sender, _loanId, msg.value);
     }
@@ -184,17 +195,48 @@ contract LendBorrowContract {
 
             emit LogLoanPaid(msg.sender, _loanId, msg.value);
         }
+
+        liquidityAvailable = liquidityAvailable + msg.value; // update liquidity pool back
+    }
+
+
+     // to do function to calculate full amount
+    function calculateInterestEarnedPerDay (uint _lendingAmount, uint _rateOfReturn, uint _duration) internal pure returns (uint) {
+
+        return (((_lendingAmount * _rateOfReturn)/ 100) /(365*2)) ;
     }
 
     // Lender methods
-    function createLender(uint _lendingAmount, uint _lendingDuration) external 
+    function createLender(uint _lendingDuration) external payable returns (uint)
     {
+        require( msg.value >0, "Please enter a valid amount to lend");
         uint lenderId = lenders.length;
         uint rateOfReturn =   lendingReturnRates[_lendingDuration];
-       // uint returnAmountPerDay = calculateTotalAmountOwedByBorrower(_loanAmount, interestRate);
+        uint interestEarnedPerDay = calculateInterestEarnedPerDay(msg.value, rateOfReturn, _lendingDuration);
 
+        (bool success, ) = payable(address(this)).call{value: msg.value}("");
 
+        require(success, "Error: Transfer failed.");
 
+        lenders.push(
+            Lend(
+            lenderId,
+            msg.sender,
+            msg.value,
+            rateOfReturn,
+            interestEarnedPerDay,
+            block.timestamp,
+            _lendingDuration,
+            LenderStatus.ACTIVE,  
+            block.timestamp  // same as start date of lending 
+            )
+        );
+
+        liquidityAvailable = liquidityAvailable + msg.value;
+
+        emit LogLenderCreation(lenderId, msg.sender, msg.value);
+
+        return lenderId;
     }
 
     //method  for redeeming interest for lenderers
