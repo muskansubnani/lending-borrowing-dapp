@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "buffer": "^6.0.3",
+    "connectkit": "^0.0.2",
     "ethers": "^5.7.1",
     "primeicons": "^6.0.1",
     "primereact": "^8.6.1",

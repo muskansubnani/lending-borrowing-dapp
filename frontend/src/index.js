@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import { createClient, WagmiConfig } from 'wagmi';
 import { connectors } from './components/connectors';
+window.Buffer = require("buffer/").Buffer;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
