@@ -1,18 +1,44 @@
-import { useConnect, useDisconnect  } from "wagmi";
+// import "primereact/resources/themes/vela-blue/theme.css";
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
+import { useAccount } from 'wagmi'
+import { ConnectKitButton } from "connectkit";
+import { useEffect } from "react";
+import { ethers } from "ethers";
 
-function App() {
-    const { connect, connectors } = useConnect();
-    const { disconnect } = useDisconnect();
+export function App() {
+  const { address } = useAccount();
 
+  useEffect(async () => {
+    address && console.log('ive changes', address);
+
+    let provider = ethers.getDefaultProvider();
+
+    let contractAddress = "";
+
+    let contract = new ethers.Contract(contractAddress, [], provider);
+    let subscriberType = await contract.getValue();
+    
+    if(!subscriberType) {
+
+    }
+    
+    if(subscriberType === "lenderer") {
+
+    }
+
+    //check to see what page to show 
+    //if hes not with us give him 2 options to sign up
+    //if hes lenderer - show lender page
+    //if hes borrower - show borrowers page+
+  }, [address])
+  
   return (
-    <div className="App">
-      <button onClick={() => { connect({ connector: connectors[0] }) }}>Coinbase Wallet</button>
-      <button onClick={() => { connect({ connector: connectors[1] }) }}>Wallet Connect</button>
-      <button onClick={() => { connect({ connector: connectors[2] }) }}>Metamask</button>
-      
-      <button onClick={disconnect}>Disconnect</button>
-    </div>
-  );
+    <>
+    <ConnectKitButton></ConnectKitButton>
+    <div>{address ?? "Loading address"}</div>;
+    </>
+  )
 }
 
 export default App;
