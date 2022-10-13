@@ -33,11 +33,11 @@ export const connectors = [
     chains,
   }),
 
-  new InjectedConnector({
-    chains,
-    options: {
-      name: "Injected",
-      shimDisconnect: true,
-    },
-  }),
+  // new InjectedConnector({
+  //   chains,
+  //   options: {
+  //     name: "Injected",
+  //     shimDisconnect: true,
+  //   },
+  // }),
 ];

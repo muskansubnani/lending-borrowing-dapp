@@ -9,23 +9,23 @@ import { ethers } from "ethers";
 export function App() {
   const { address } = useAccount();
 
-  useEffect(async () => {
+  useEffect(() => {
     address && console.log('ive changes', address);
 
-    let provider = ethers.getDefaultProvider();
+    // let provider = ethers.getDefaultProvider();
 
-    let contractAddress = "";
+    // let contractAddress = "";
 
-    let contract = new ethers.Contract(contractAddress, [], provider);
-    let subscriberType = await contract.getValue();
+    // let contract = new ethers.Contract(contractAddress, [], provider);
+    // let subscriberType = await contract.getValue();
     
-    if(!subscriberType) {
+    // if(!subscriberType) {
 
-    }
+    // }
     
-    if(subscriberType === "lenderer") {
+    // if(subscriberType === "lenderer") {
 
-    }
+    // }
 
     //check to see what page to show 
     //if hes not with us give him 2 options to sign up
