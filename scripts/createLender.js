@@ -4,7 +4,7 @@ const main = async (cb) => {
     try {
         const lendBorrow = await LendBorrow.deployed();
         let user = (await web3.eth.getAccounts())[1];
-        let value = 10000;
+        let value = 100000;
         let txn = await lendBorrow.createLender(lenderDuration, {from: user, value: value});
         console.log(txn);
         console.log(txn.logs[0].args);
