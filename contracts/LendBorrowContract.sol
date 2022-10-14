@@ -101,19 +101,48 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
         return liquidityAvailable;
     }
 
-
-     // Method to get only your Tasks
-    function getLoaners() external view returns (Loan [] memory) {
-        Loan[] memory temporary = new Loan[](loans.length);
-        uint counter = 0;
-        for(uint i=0; i<loans.length; i++) {
-            temporary[counter] = loans[i];
-            counter++;
-        }
-
-        return temporary;
+     // Method to get all Loaners
+    function getAllLoaners() external view returns (Loan [] memory) {
+        return loans;
     }
 
+    // Method to get all lenders
+    function getAllLenders() external view returns (Lend [] memory) {
+        return lenders;
+    }
+
+    // Method to get all Loaners
+    function getUsersLoan() external view returns ( Loan memory) {
+        Loan memory result;
+
+        for(uint i=0; i<loans.length; i++) {
+            if(loans[i].borrower == msg.sender) {
+                result = loans[i];
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    // Method to get all lenders
+    function getUsersLendings() external view returns (Lend [] memory) {
+        Lend[] memory temporary = new Lend[](lenders.length);
+        uint counter = 0;
+        for(uint i=0; i<lenders.length; i++) {
+            if(lenders[i].lender == msg.sender) {
+                temporary[counter] = lenders[i];
+                counter++;
+            }
+        }
+
+        Lend[] memory result = new Lend[](counter);
+        for(uint i=0; i<counter; i++) {
+            result[i] = temporary[i];
+        }
+        
+        return result;
+    }
 
     // to do function to calculate full amount
     function calculateTotalAmountOwedByBorrower(uint _loanAmount, uint _interestRate) internal pure returns (uint) {
@@ -314,7 +343,6 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     // method to transfer back locked amount for lenders after the duration is complete
 
     function retrieveLendersFund(uint _lenderId) external payable {
-
 
         require(msg.sender == lenders[_lenderId].lender, "You must be the assigned lender");
 
