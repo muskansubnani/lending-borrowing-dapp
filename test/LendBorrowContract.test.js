@@ -119,11 +119,17 @@ it("should create Loan correctly", async function() {
         monthlyDeposit: 916
       };
 
-    const actualLoan = await lendBorrowInstance.createLoan(loanAmount, loanDuration, { from: loanUser});
-    console.log()
-    assert.equal(actualLoan, 2);
-    console.log(actualLoan);
+    const result = await lendBorrowInstance.createLoan(loanAmount, loanDuration, { from: loanUser});
 
+    const eventLoanCreation = result.logs[0].args;
+    const eventLoanFullAmount = result.logs[1].args;
+    const eventMonthlyLoanDeposit = result.logs[2].args;
+
+    assert.equal(eventLoanCreation._loanId, expectedLoan.Id, "Id is not correct");
+    assert.equal(eventLoanCreation._borrower, expectedLoan.borrower, "Borrower is not correct" );
+    assert.equal(eventLoanCreation._amount, expectedLoan.loanAmount, "LoanAmount is not correct")
+    assert.equal(eventLoanFullAmount._fullAmount, expectedLoan.fullAmount, "FullAmount is not correct");
+    assert.equal( eventMonthlyLoanDeposit._monthlyDepositAmount, expectedLoan.monthlyDeposit, "monthlyDeposit is not correct");
 })
 
 it("should create Lender correctly", async function() {
@@ -141,17 +147,23 @@ it("should create Lender correctly", async function() {
         duration: lenderDuration
       };
 
-    const actualLender = await lendBorrowInstance.createLender(lenderDuration, { from: lenderUser});
+    const result = await lendBorrowInstance.createLender(lenderDuration, { from: lenderUser, value : lenderAmount});
 
-    assertLender(actualLender, expectedLender);
+    const eventLenderCreation = result.logs[0].args;
+    const eventLenderInterestPerDay= result.logs[1].args;
 
-    console.log(actualLender);
+    assert.equal(eventLenderCreation._lenderId, expectedLender.Id, "Id is not correct");
+    assert.equal(eventLenderCreation._lender, expectedLender.lender, "lender is not correct" );
+    assert.equal(eventLenderCreation._amount, expectedLender.lendingAmount, "Lender Amount is not correct")
+    assert.equal(eventLenderInterestPerDay.interestPerDay, expectedLender.interestEarnedPerDay, "interest earned per is not correct");
 })
 
 
 //Todo
 
 it("should pay Loan Monthly Deposit", async function() {
+
+
 
 })
 
@@ -167,7 +179,10 @@ it("should redeem Interest for lender", async function() {
  
 })
 
+//notes
+
 //need to use open zeppelin test helpers to simulate time advancement
+// need to consolidate logs 
 it("should refund lending amount after time duration for lending is ended", async function() {
 
 })
