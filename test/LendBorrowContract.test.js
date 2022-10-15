@@ -1,28 +1,15 @@
+require("@openzeppelin/test-helpers/configure")({
+    provider: web3.currentProvider,
+    singletons: {
+      abstraction: "truffle",
+    },
+  });
+
+
+
 const LendBorrowContract = artifacts.require('LendBorrowContract.sol')
 
-
-
-function assertLoan(actual, expected) {
-    assert.equal(actual.Id, expected.Id, "Id is not correct");
-    assert.equal(actual.loanAmount, expected.LoanAmount, "Loan Amount is not correct");
-    assert.equal(actual.fullAmount, expected.fullAmount, "FullAmount is not correct");
-    assert.equal(actual.pendingAmount, expected.pendingAmount, "Pending Amount is not correct");
-    assert.equal(actual.borrower, expected.borrower, "borrower is not correct");
-    assert.equal(actual.interest, expected.interest, "interest is not correct");
-    assert.equal(actual.duration, expected.duration, "duration is not correct");
-    assert.equal(actual.monthlyDeposit, expected.monthlyDeposit, "monthly deposit is not correct");
-  }
-
-
-  function assertLender(actual, expected) {
-    assert.equal(actual.Id, expected.Id, "Id is not correct");
-    assert.equal(actual.lender, expected.lender, "lender is not correct");
-    assert.equal(actual.lendingAmount, expected.lendingAmount, "lendingAmount is not correct");
-    assert.equal(actual.rateOfReturn, expected.rateOfReturn, "rate of Return is not correct");
-    assert.equal(actual.interestEarnedPerDay, expected.interestEarnedPerDay, "interest earned per day is not correct");
-    assert.equal(actual.duration, expected.duration, "duration is not correct");
-  }
-
+const { balance, time, constants } = require('@openzeppelin/test-helpers');
 
 contract('LendBorrowContract', accounts => {
   let lendBorrowInstance;
@@ -33,7 +20,7 @@ before(async () => {
     //lenders
     let lenderUser1 = accounts[1];
     let lendingDuration1 = 2;
-    let lendingValue1 = 30000;
+    let lendingValue1 = 30000 ;
     
     await lendBorrowInstance.createLender(lendingDuration1, {from: lenderUser1 , value: lendingValue1});
 
@@ -122,14 +109,13 @@ it("should create Loan correctly", async function() {
     const result = await lendBorrowInstance.createLoan(loanAmount, loanDuration, { from: loanUser});
 
     const eventLoanCreation = result.logs[0].args;
-    const eventLoanFullAmount = result.logs[1].args;
-    const eventMonthlyLoanDeposit = result.logs[2].args;
-
+   
     assert.equal(eventLoanCreation._loanId, expectedLoan.Id, "Id is not correct");
     assert.equal(eventLoanCreation._borrower, expectedLoan.borrower, "Borrower is not correct" );
     assert.equal(eventLoanCreation._amount, expectedLoan.loanAmount, "LoanAmount is not correct")
-    assert.equal(eventLoanFullAmount._fullAmount, expectedLoan.fullAmount, "FullAmount is not correct");
-    assert.equal( eventMonthlyLoanDeposit._monthlyDepositAmount, expectedLoan.monthlyDeposit, "monthlyDeposit is not correct");
+    assert.equal(eventLoanCreation._interest, expectedLoan.interest, "interest is not correct");
+    assert.equal(eventLoanCreation._fullAmount, expectedLoan.fullAmount, "FullAmount is not correct");
+    assert.equal(eventLoanCreation._monthlyDepositAmount, expectedLoan.monthlyDeposit, "monthlyDeposit is not correct");
 })
 
 it("should create Lender correctly", async function() {
@@ -150,12 +136,12 @@ it("should create Lender correctly", async function() {
     const result = await lendBorrowInstance.createLender(lenderDuration, { from: lenderUser, value : lenderAmount});
 
     const eventLenderCreation = result.logs[0].args;
-    const eventLenderInterestPerDay= result.logs[1].args;
 
     assert.equal(eventLenderCreation._lenderId, expectedLender.Id, "Id is not correct");
     assert.equal(eventLenderCreation._lender, expectedLender.lender, "lender is not correct" );
     assert.equal(eventLenderCreation._amount, expectedLender.lendingAmount, "Lender Amount is not correct")
-    assert.equal(eventLenderInterestPerDay.interestPerDay, expectedLender.interestEarnedPerDay, "interest earned per is not correct");
+    assert.equal(eventLenderCreation._rateOfReturn, expectedLender.rateOfReturn, "Rate of Return is not correct");
+    assert.equal(eventLenderCreation._interestEarnedPerDay, expectedLender.interestEarnedPerDay, "interest earned per is not correct");
 })
 
 
@@ -163,12 +149,41 @@ it("should create Lender correctly", async function() {
 
 it("should pay Loan Monthly Deposit", async function() {
 
+    let loanId=0;
+    let value = 916;
+    let pendingAmount= 10084;
+    let user = accounts[3];
 
+    await lendBorrowInstance.transferLoanFunds(loanId, {from: user});
 
+    const result = await lendBorrowInstance.payLoanMonthlyDeposit(loanId, {from: user, value: value});
+
+    const eventLoanDeposit = result.logs[0].args;
+
+    assert.equal(eventLoanDeposit._loanId, loanId, "Id is not correct");
+    assert.equal(eventLoanDeposit._borrower, user, "user is not correct" );
+    assert.equal(eventLoanDeposit._depositAmount, value, "deposit is not correct")
+    assert.equal(eventLoanDeposit._pendingAmount,  pendingAmount, "Pending Amount is not correct");
 })
 
 
 it("should pay Complete Loan", async function() {
+
+    let loanId=2;
+    let user = accounts[6];
+    let value = 11000;
+    let pendingAmount= 0;
+
+    await lendBorrowInstance.transferLoanFunds(loanId , {from: user});
+
+    const result = await lendBorrowInstance.payCompleteLoan(loanId, {from: user, value: value});
+
+    const eventPayCompleteLoan = result.logs[0].args;
+
+    assert.equal(eventPayCompleteLoan._loanId, loanId, "Id is not correct");
+    assert.equal(eventPayCompleteLoan._borrower, user, "user is not correct" );
+    assert.equal(eventPayCompleteLoan._depositAmount, value, "deposit is not correct")
+    assert.equal(eventPayCompleteLoan._pendingAmount,  pendingAmount, "Pending Amount is not correct");
 
 
 })
@@ -176,13 +191,28 @@ it("should pay Complete Loan", async function() {
 
 it("should redeem Interest for lender", async function() {
 
- 
+    let lenderId = 0;
+    let user = accounts[1];
+
+    await time.increase(time.duration.days(1));
+
+   const result = redeemLendersInterest(0, {from: user});
+
+   const eventLenderInterestRedemption = result.logs[0].args;
+
+
+  // emit LogLenderInterestRedemption(_lenderId, lenders[_lenderId].lender, interestEarned,  lenders[_lenderId].latestTimeOfInterestRedeemedInSecs); 
+
+
+
+
 })
 
 //notes
 
 //need to use open zeppelin test helpers to simulate time advancement
 // need to consolidate logs 
+// need to try creation of loan/ lending with ethers and see how it works
 it("should refund lending amount after time duration for lending is ended", async function() {
 
 })
