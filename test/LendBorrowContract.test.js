@@ -9,7 +9,7 @@ require("@openzeppelin/test-helpers/configure")({
 
 const LendBorrowContract = artifacts.require('LendBorrowContract.sol')
 
-const { balance, time, constants } = require('@openzeppelin/test-helpers');
+const { balance, time, constants, expectRevert } = require('@openzeppelin/test-helpers');
 
 contract('LendBorrowContract', accounts => {
   let lendBorrowInstance;
@@ -188,32 +188,66 @@ it("should pay Complete Loan", async function() {
 
 })
 
+it("should not redeem Interest for lender before 24 hours", async function() {
 
-it("should redeem Interest for lender", async function() {
+  let lenderId = 2;
+  let user = accounts[7];
+   await time.increase(time.duration.hours(1));
 
-    let lenderId = 0;
-    let user = accounts[1];
+   await expectRevert(
+    lendBorrowInstance.redeemLendersInterest(lenderId, {from: user}),
+    "interest is earned in 24 hours, please check back later"
+  );
 
-    await time.increase(time.duration.days(1));
+})
 
-   const result = redeemLendersInterest(0, {from: user});
+it("should redeem Interest for lender after 1 day", async function() {
+
+    let lenderId = 2;
+    let user = accounts[7];
+    let interestRedeemed = 8;
+
+   await time.increase(time.duration.days(1));
+
+   const result = await lendBorrowInstance.redeemLendersInterest(lenderId, {from: user});
 
    const eventLenderInterestRedemption = result.logs[0].args;
 
+   assert.equal(eventLenderInterestRedemption._lenderId, lenderId, "Id is not correct");
+   assert.equal(eventLenderInterestRedemption._lender, user, "user is not correct" );
+   assert.equal(eventLenderInterestRedemption._interestRedeemed,  interestRedeemed, "interest redeemed is not correct")
+ 
+})
 
-  // emit LogLenderInterestRedemption(_lenderId, lenders[_lenderId].lender, interestEarned,  lenders[_lenderId].latestTimeOfInterestRedeemedInSecs); 
+it("should redeem Interest for lender after 2 day", async function() {
 
+    let lenderId = 2;
+    let user = accounts[7];
+    let interestRedeemed = 16;
 
+   await time.increase(time.duration.days(2));
 
+   const result = await lendBorrowInstance.redeemLendersInterest(lenderId, {from: user});
 
+   const eventLenderInterestRedemption = result.logs[0].args;
+
+  
+   assert.equal(eventLenderInterestRedemption._lenderId, lenderId, "Id is not correct");
+   assert.equal(eventLenderInterestRedemption._lender, user, "user is not correct" );
+   assert.equal(eventLenderInterestRedemption._interestRedeemed,  interestRedeemed, "interest redeemed is not correct")
+   
 })
 
 //notes
 
-//need to use open zeppelin test helpers to simulate time advancement
-// need to consolidate logs 
-// need to try creation of loan/ lending with ethers and see how it works
+//need to use open zeppelin test helpers to simulate time advancement DONE 
+
 it("should refund lending amount after time duration for lending is ended", async function() {
+
+
+
+    
+
 
 })
 

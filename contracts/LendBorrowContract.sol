@@ -63,7 +63,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     event LogLoanDeposit(uint indexed _loanId, address indexed _borrower, uint _depositAmount, uint _pendingAmount);
     event LogLoanPaid(address indexed _borrower, uint indexed _loanId, uint indexed _depositAmount, uint _pendingAmount);
 
-    event LogLenderCreation(uint indexed _lenderId,address indexed _lender, uint indexed _amount, uint _rateOfReturn, uint _interestEarnedPerDay, uint  _lendingDurationInSecs);
+    event LogLenderCreation(uint indexed _lenderId,address indexed _lender, uint indexed _amount, uint _rateOfReturn, uint _interestEarnedPerDay, uint  _lendingDurationInSecs, uint _startTimeInSecs);
     event LogLenderInterestRedemption(uint indexed _lenderId, address indexed _lender, uint indexed _interestRedeemed, uint _latestTimeOfInterestRedeemed);
     event LogLenderMatured(uint indexed _lenderId, address indexed _lender, uint indexed _lenderAmount);
     event LogLiquidityAvailable(uint indexed _liquidityAvailable);
@@ -299,28 +299,34 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
         liquidityAvailable = liquidityAvailable + msg.value; 
 
-        emit LogLenderCreation(lenderId, msg.sender, msg.value, rateOfReturn, interestEarnedPerDay,lendingDurationInSecs );
+        // Need to log from the lenders array object not from thes so lenders[lenderId]
+
+        emit LogLenderCreation(lenderId, msg.sender, msg.value, lenders[lenderId].rateOfReturn, lenders[lenderId].interestEarnedPerDay, lenders[lenderId].durationInSecs, lenders[lenderId].startTimeInSecs);
+
         emit LogLiquidityAvailable(liquidityAvailable);
 
         return lenderId;
     }
 
     //method  for redeeming interest for lenderers
+    
     function redeemLendersInterest(uint _lenderId) external payable nonReentrant {
 
         require(msg.sender == lenders[_lenderId].lender, "You must be the assigned lender");
 
-        require((lenders[_lenderId].durationInSecs + lenders[_lenderId].startTimeInSecs) < block.timestamp, "This lending fund has matured, please request to recieve the funds back");
+        require((lenders[_lenderId].durationInSecs + lenders[_lenderId].startTimeInSecs) >= block.timestamp, "This lending fund has matured, please request to recieve the funds back");
 
         uint interestEarnedPerDay = lenders[_lenderId].interestEarnedPerDay;
 
         uint noOfInterestDayAccumulated = (block.timestamp - lenders[_lenderId].latestTimeOfInterestRedeemedInSecs)/ (24 * 60 * 60);
 
-        require(noOfInterestDayAccumulated>=1, "interest is earned in 24 hours, please check back later");
+        
+        require(noOfInterestDayAccumulated >= 1, "interest is earned in 24 hours, please check back later");
 
         uint interestEarned = interestEarnedPerDay * noOfInterestDayAccumulated;
 
         // update latest date of interest redeemed 
+
         lenders[_lenderId].latestTimeOfInterestRedeemedInSecs = block.timestamp; 
 
         liquidityAvailable = liquidityAvailable - interestEarned; //update liquidity available
