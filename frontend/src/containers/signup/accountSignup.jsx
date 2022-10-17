@@ -1,9 +1,18 @@
 import React from "react";
+import { ButtonGroup, Button } from "@chakra-ui/react";
+import { useAccount } from "wagmi";
+import { useNavigate } from "react-router";
 
 export const AccountSignup = () => {
-    console.log('am intrat in account signup');
+  const { address } = useAccount();
+  const navigation = useNavigate();
 
-    return (
-        <>Dada</>
+  return (
+    address && (
+      <ButtonGroup variant="outline" spacing="6">
+        <Button onClick={() => navigation("/dashboard")}>Lenderer</Button>
+        <Button onClick={() => navigation("/dashboard")}>Borrower</Button>
+      </ButtonGroup>
     )
-}
+  );
+};
