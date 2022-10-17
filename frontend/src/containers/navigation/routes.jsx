@@ -1,9 +1,21 @@
 import React from "react";
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route } from "react-router-dom";
+import { Borrower } from "../borrower/borrower";
+import { Lenderer } from "../lenderer/lenderer";
+import { AccountSignup } from "./../signup/accountSignup";
+import { App } from "./../../App";
 
-export const Routes = () => {
+export const NavigationRoutes = () => {
+  console.log("lm");
+  return (
     <Routes>
-        <Route path="/account/signup" element={<></>}/>
-        <Route path="users" element={<></>} />
+      {/* <Route exact path="/" element={<App />} /> */}
+      <Route
+        exact path="/signup"
+        element={console.log("da") && <AccountSignup />}
+      />
+      <Route exact path="/borrower" element={<Borrower />} />
+      <Route exact path="/lenderer" element={<Lenderer />} />
     </Routes>
-}
+  );
+};
