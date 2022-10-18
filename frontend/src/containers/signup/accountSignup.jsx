@@ -10,9 +10,10 @@ export const AccountSignup = () => {
   return (
     address && (
       <ButtonGroup variant="outline" spacing="6">
-        <Button onClick={() => navigation("/dashboard")}>Lenderer</Button>
+        <Button onClick={() => navigation("/dashboard")}>Lenderer</Button> 
         <Button onClick={() => navigation("/dashboard")}>Borrower</Button>
       </ButtonGroup>
     )
   );
 };
+//keep in context or send by query params? hmm 
