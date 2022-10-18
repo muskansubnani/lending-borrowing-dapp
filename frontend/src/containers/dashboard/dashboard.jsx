@@ -92,7 +92,7 @@ export const Dashboard = () => {
                     </Flex>
                     <Flex flexDir="column" alignItems="center" mb={10} mt={5}>
                         <Avatar my={2} src="avatar-1.jpg" />
-                        <Text textAlign="center">Calvin West</Text>
+                        <Text textAlign="center">some-eth-wallet</Text>
                     </Flex>
                 </Flex>
             </Flex>
@@ -110,16 +110,16 @@ export const Dashboard = () => {
                     mb={4}
                     letterSpacing="tight"
                 >
-                    Welcome back, <Flex display="inline-flex" fontWeight="bold">Calvin</Flex>
+                    Welcome back, <Flex display="inline-flex" fontWeight="bold">some-eth-wallet</Flex>
                 </Heading>
                 <Text color="gray" fontSize="sm">My Balance</Text>
-                <Text fontWeight="bold" fontSize="2xl">$5,750.20</Text>
+                <Text fontWeight="bold" fontSize="2xl">3 ETH</Text>
                 <>Ceva spatiu</>
 
                 <Flex justifyContent="space-between" mt={8}>
                     <Flex align="flex-end">
                         <Heading as="h2" size="lg" letterSpacing="tight">Transactions</Heading>
-                        <Text fontSize="small" color="gray" ml={4}>Apr 2021</Text>
+                        <Text fontSize="small" color="gray" ml={4}>some-eth-wallet</Text>
                     </Flex>
                     <IconButton icon={<FiCalendar />} />
                 </Flex>
