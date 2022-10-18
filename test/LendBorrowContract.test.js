@@ -82,7 +82,9 @@ it("should get given address lendings", async function() {
 
     lenderUser = accounts[1];
     const givenAddressLendings = await lendBorrowInstance.getUsersLendings({from: lenderUser}); 
+
     assert.equal(givenAddressLendings.length, 1);
+    assert.equal(givenAddressLendings[0].lender, lenderUser);
 })
 
 it("should create Loan correctly", async function() {
@@ -114,6 +116,9 @@ it("should create Loan correctly", async function() {
     assert.equal(eventLoanCreation._interest, expectedLoan.interest, "interest is not correct");
     assert.equal(eventLoanCreation._fullAmount, expectedLoan.fullAmount, "FullAmount is not correct");
     assert.equal(eventLoanCreation._monthlyDepositAmount, expectedLoan.monthlyDeposit, "monthlyDeposit is not correct");
+
+
+
 })
 
 it("should create Lender correctly", async function() {
@@ -140,6 +145,9 @@ it("should create Lender correctly", async function() {
     assert.equal(eventLenderCreation._amount, expectedLender.lendingAmount, "Lender Amount is not correct")
     assert.equal(eventLenderCreation._rateOfReturn, expectedLender.rateOfReturn, "Rate of Return is not correct");
     assert.equal(eventLenderCreation._interestEarnedPerDay, expectedLender.interestEarnedPerDay, "interest earned per is not correct");
+    assert.equal(eventLenderCreation._lendingDurationInSecs, 63072000, "duration in secs not correct");  // 2 years => 63072000 secs
+
+
 })
 
 
@@ -249,8 +257,7 @@ it("should refund lending amount after time duration for lending is ended", asyn
 
    assert.equal(eventRetrieveLendersFund._lenderId, lenderId, "Id is not correct");
    assert.equal(eventRetrieveLendersFund._lender, user, "Lender is not correct");
-   assert.equal(eventRetrieveLendersFund._lenderAmount,  100000, "Lender is not correct");
+   assert.equal(eventRetrieveLendersFund._lenderAmount,  100000, "Lender amount  is not correct");
 
 })
-
 })
