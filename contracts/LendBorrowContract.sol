@@ -46,6 +46,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
         uint durationInSecs; //stored in unix epoch in sec no datetime in solidity
         LenderStatus status;
         uint latestTimeOfInterestRedeemedInSecs; //stored in unix epoch in second no datetime in solidity
+        uint interestPaidTillDate;
     }
 
     Loan[] public loans;
@@ -67,6 +68,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     event LogLenderInterestRedemption(uint indexed _lenderId, address indexed _lender, uint indexed _interestRedeemed, uint _latestTimeOfInterestRedeemed);
     event LogLenderMatured(uint indexed _lenderId, address indexed _lender, uint indexed _lenderAmount);
     event LogLiquidityAvailable(uint indexed _liquidityAvailable);
+    event LogLenderRemainingInterestValue(uint indexed _interestNotRedeemed);
 
     constructor() {
       liquidityAvailable = 0;
@@ -133,7 +135,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
         }
 
         Lend[] memory result = new Lend[](counter);
-        for(uint i=0; i<counter; i++) {
+        for(uint i=0; i < counter; i++) {
             result[i] = temporary[i];
         }
         
@@ -202,7 +204,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
         loans[_loanId].status = LoanStatus.ACTIVE;
 
         // update liquidity value  need to discuss update here or  during loan creation?
-        liquidityAvailable = liquidityAvailable - loans[_loanId].loanAmount;
+         liquidityAvailable = liquidityAvailable - loans[_loanId].loanAmount;
 
         // transfer funds to the caller
         (bool success, ) = msg.sender.call{ value:loanAmount }("");
@@ -229,7 +231,8 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
         loans[_loanId].status = LoanStatus.REPAID;
         loans[_loanId].pendingAmount = 0;
 
-        liquidityAvailable = liquidityAvailable + msg.value;  // update liquidity pool back  // hide our earning value
+        liquidityAvailable = liquidityAvailable + msg.value;
+      //  liquidityAvailable = liquidityAvailable + (msg.value - ((loans[_loanId].loanAmount * loans[_loanId].interest)/100));  // update liquidity pool back  // hide our earning value
 
         emit LogLoanPaid(msg.sender, _loanId, msg.value, loans[_loanId].pendingAmount);
         emit LogLiquidityAvailable(liquidityAvailable);
@@ -293,7 +296,8 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
             block.timestamp,
             lendingDurationInSecs,
             LenderStatus.ACTIVE,  
-            block.timestamp  // same as start date of lending 
+            block.timestamp, // same as start date of lending
+            0 
             )
         );
 
@@ -316,18 +320,19 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
         require((lenders[_lenderId].durationInSecs + lenders[_lenderId].startTimeInSecs) >= block.timestamp, "This lending fund has matured, please request to recieve the funds back");
 
-        uint interestEarnedPerDay = lenders[_lenderId].interestEarnedPerDay;
-
         uint noOfInterestDayAccumulated = (block.timestamp - lenders[_lenderId].latestTimeOfInterestRedeemedInSecs)/ (24 * 60 * 60);
 
-        
         require(noOfInterestDayAccumulated >= 1, "interest is earned in 24 hours, please check back later");
 
-        uint interestEarned = interestEarnedPerDay * noOfInterestDayAccumulated;
+        uint interestEarned = lenders[_lenderId].interestEarnedPerDay * noOfInterestDayAccumulated;
+
+        // update interestPaid Till Date
+
+        lenders[_lenderId].interestPaidTillDate = lenders[_lenderId].interestPaidTillDate + interestEarned;
 
         // update latest date of interest redeemed 
 
-        lenders[_lenderId].latestTimeOfInterestRedeemedInSecs = block.timestamp; 
+        lenders[_lenderId].latestTimeOfInterestRedeemedInSecs = lenders[_lenderId].latestTimeOfInterestRedeemedInSecs + ( noOfInterestDayAccumulated * 24 * 60 * 60); // add a day
 
         liquidityAvailable = liquidityAvailable - interestEarned; //update liquidity available
 
@@ -349,7 +354,12 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
         require( lenders[_lenderId].status == LenderStatus.ACTIVE, "lending fund is not active" );
 
-        require((lenders[_lenderId].durationInSecs + lenders[_lenderId].startTimeInSecs) >= block.timestamp, "lending fund is not matured yet" );
+        require((lenders[_lenderId].durationInSecs + lenders[_lenderId].startTimeInSecs) <= block.timestamp, "lending fund is not matured yet" );
+
+        // uint interestNotRedeemed = (lenders[_lenderId].interestEarnedPerDay * (lenders[_lenderId].latestTimeOfInterestRedeemedInSecs / (24 * 60 * 60)))
+        //                              - lenders[_lenderId].interestPaidTillDate;
+
+       //  uint remainingAmount = lenders[_lenderId].lendingAmount + interestNotRedeemed;
 
         lenders[_lenderId].status = LenderStatus.MATURED;
         
@@ -359,9 +369,12 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
         require(success, "Error: Transfer failed."); 
 
+      // emit LogLenderRemainingInterestValue(interestNotRedeemed);
+
         emit LogLiquidityAvailable(liquidityAvailable);
 
         emit LogLenderMatured(_lenderId, lenders[_lenderId].lender, lenders[_lenderId].lendingAmount);
+
     }
 
 }

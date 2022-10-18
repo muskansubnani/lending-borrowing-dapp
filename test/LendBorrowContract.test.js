@@ -5,8 +5,6 @@ require("@openzeppelin/test-helpers/configure")({
     },
   });
 
-
-
 const LendBorrowContract = artifacts.require('LendBorrowContract.sol')
 
 const { balance, time, constants, expectRevert } = require('@openzeppelin/test-helpers');
@@ -238,19 +236,24 @@ it("should redeem Interest for lender after 2 day", async function() {
    
 })
 
-//notes
-
-//need to use open zeppelin test helpers to simulate time advancement DONE 
-
 it("should refund lending amount after time duration for lending is ended", async function() {
 
+    let lenderId = 2;
+    let user = accounts[7];
+
+   await time.increase(time.duration.years(2));
+
+   const result = await lendBorrowInstance.retrieveLendersFund(lenderId, {from: user});
 
 
-    
+   const eventLiquidityAvailable = result.logs[0].args;
+   const eventRetrieveLendersFund = result.logs[1].args;
 
+   assert.equal(eventLiquidityAvailable._liquidityAvailable, )
+   assert.equal(eventRetrieveLendersFund._lenderId, lenderId, "Id is not correct");
+   assert.equal(eventRetrieveLendersFund._lender, user, "Lender is not correct");
+   assert.equal(eventRetrieveLendersFund._lenderAmount,  100000, "Lender is not correct");
 
 })
-
-
 
 })
