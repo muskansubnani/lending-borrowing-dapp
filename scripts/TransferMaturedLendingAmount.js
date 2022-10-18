@@ -16,13 +16,15 @@ const main = async (cb) => {
         let user = (await web3.eth.getAccounts())[1];
         
         await time.increase(time.duration.years(2));
-
         let txn = await lendBorrow.retrieveLendersFund(lenderId, {from: user});
 
         console.log(txn);
         console.log(txn.logs[0].args);
         console.log(txn.logs[1].args);
-        
+
+        const givenAddressLendings = await lendBorrow.getUsersLendings({from: user}); 
+        console.log(givenAddressLendings[0]);
+
     } catch(err) {
         console.log(err);
     }
