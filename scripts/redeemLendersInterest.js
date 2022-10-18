@@ -24,6 +24,10 @@ const main = async (cb) => {
         console.log(txn.logs[0].args);
         console.log(txn.logs[1].args);
 
+        const givenAddressLendings = await lendBorrow.getUsersLendings({from: user}); 
+        console.log(givenAddressLendings[0]);
+
+
     } catch(err) {
 
         console.log(err);

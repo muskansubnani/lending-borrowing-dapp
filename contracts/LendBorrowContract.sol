@@ -348,7 +348,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
     // method to transfer back locked amount for lenders after the duration is complete
 
-    function retrieveLendersFund(uint _lenderId) external payable {
+    function retrieveLendersFund(uint _lenderId) external payable nonReentrant{
 
         require(msg.sender == lenders[_lenderId].lender, "You must be the assigned lender");
 
