@@ -245,11 +245,8 @@ it("should refund lending amount after time duration for lending is ended", asyn
 
    const result = await lendBorrowInstance.retrieveLendersFund(lenderId, {from: user});
 
-
-   const eventLiquidityAvailable = result.logs[0].args;
    const eventRetrieveLendersFund = result.logs[1].args;
 
-   assert.equal(eventLiquidityAvailable._liquidityAvailable, )
    assert.equal(eventRetrieveLendersFund._lenderId, lenderId, "Id is not correct");
    assert.equal(eventRetrieveLendersFund._lender, user, "Lender is not correct");
    assert.equal(eventRetrieveLendersFund._lenderAmount,  100000, "Lender is not correct");
