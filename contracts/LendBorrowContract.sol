@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -26,7 +26,8 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
         uint Id;
         uint loanAmount;
         uint fullAmount;  // loan + interest
-        uint pendingAmount;
+        uint remainingAmount;
+        uint interestAmountPerMonth;
         uint interest;
         address borrower;
         LoanStatus status;
@@ -46,7 +47,6 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
         uint durationInSecs; //stored in unix epoch in sec no datetime in solidity
         LenderStatus status;
         uint latestTimeOfInterestRedeemedInSecs; //stored in unix epoch in second no datetime in solidity
-        uint interestPaidTillDate;
     }
 
     Loan[] public loans;
@@ -59,14 +59,14 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     mapping(uint => uint) public lendingReturnRates; // could be constant 
 
     // emit function for logging 
-    event LogLoanCreation(uint indexed _loanId, address indexed _borrower, uint indexed _amount, uint _interest, uint _fullAmount, uint _monthlyDepositAmount);
+    event LogLoanCreation(uint indexed _loanId, address indexed _borrower, uint indexed _amount, uint _interest, uint _fullAmount, uint _monthlyDepositAmount, uint _monthlyInterest);
     event LogRetrievedLoan(uint indexed _loanId, address indexed _borrower, uint indexed _amountRetrieved);
-    event LogLoanDeposit(uint indexed _loanId, address indexed _borrower, uint _depositAmount, uint _pendingAmount);
-    event LogLoanPaid(address indexed _borrower, uint indexed _loanId, uint indexed _depositAmount, uint _pendingAmount);
+    event LogLoanDeposit(uint indexed _loanId, address indexed _borrower, uint _depositAmount, uint _remainingAmount);
+    event LogLoanPaid(address indexed _borrower, uint indexed _loanId, uint indexed _depositAmount, uint _remainingAmount);
 
     event LogLenderCreation(uint indexed _lenderId,address indexed _lender, uint indexed _amount, uint _rateOfReturn, uint _interestEarnedPerDay, uint  _lendingDurationInSecs, uint _startTimeInSecs);
     event LogLenderInterestRedemption(uint indexed _lenderId, address indexed _lender, uint indexed _interestRedeemed, uint _latestTimeOfInterestRedeemed);
-    event LogLenderMatured(uint indexed _lenderId, address indexed _lender, uint indexed _lenderAmount);
+    event LogLenderMatured(uint indexed _lenderId, address indexed _lender, uint indexed _lenderAmount, uint _interestNotRedeemed);
     event LogLiquidityAvailable(uint indexed _liquidityAvailable);
     event LogLenderRemainingInterestValue(uint indexed _interestNotRedeemed);
 
@@ -83,7 +83,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     receive() external payable {}
 
     // loan methods
-    function checkForActiveLoans(address _address) public view returns (bool) {  // internal previuosly
+    function checkForActiveLoans(address _address) public view returns (bool) {  // internal previously
         for(uint i=0; i < loans.length; i++) {
 
             if(loans[i].borrower == _address && loans[i].status == LoanStatus.ACTIVE ) {
@@ -143,30 +143,35 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     }
 
     // to do function to calculate full amount
-    function calculateTotalAmountOwedByBorrower(uint _loanAmount, uint _interestRate) internal pure returns (uint) {
 
-       return (_loanAmount + ((_loanAmount * _interestRate)/100));
+     function calculateTotalInterestOwedByBorrower(uint _loanAmount, uint _interestRate) internal pure returns (uint) {
+
+       return ((_loanAmount * _interestRate)/100);
     }
 
     // to do monthly deposit calc
-    function calculateMonthlyLoanDeposit(uint _fullAmount, uint _loanDuration) internal pure returns (uint) {
+    function calculateMonthlyLoanDeposit(uint _fullAmount, uint _loanDurationInMonths) internal pure returns (uint) {
 
-      return _fullAmount/ _loanDuration;    
+      return _fullAmount/ _loanDurationInMonths;    
     }
 
     function createLoan (uint _loanAmount, uint _loanDuration
     //, 
     //address _nftAddress, uint _nftTokenId
     ) external returns (uint) {
-
-        //_nftTokenId should be retrieved by etherscan api
         require(_loanAmount <= liquidityAvailable, 'Sorry, we dont have enough liquidity at this moment to fund this loan');
         require(checkForActiveLoans(msg.sender), 'You have an outstanding loan, cannot create a new loan at this moment');
 
         uint loanId = loans.length;
 
         uint interestRate = borrowingInterestRates[_loanDuration];
-        uint fullAmount = calculateTotalAmountOwedByBorrower(_loanAmount, interestRate); 
+
+        uint interestAmount = calculateTotalInterestOwedByBorrower(_loanAmount, interestRate);
+
+        uint interestPerMonth = interestAmount/ (_loanDuration * 12);
+
+        uint fullAmount = _loanAmount + interestAmount; 
+
         uint monthlyDeposit = calculateMonthlyLoanDeposit(fullAmount, _loanDuration * 12);
 
         loans.push(
@@ -174,7 +179,8 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
                 loanId, 
                 _loanAmount,
                 fullAmount,
-                fullAmount,  // initially pending amount equals fullAmount
+                fullAmount,  // initially remaining amount equals fullAmount
+                interestPerMonth,
                 interestRate, 
                 msg.sender,
                 LoanStatus.PENDING,
@@ -184,7 +190,8 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
                 monthlyDeposit
                 ));
 
-        emit LogLoanCreation(loanId, msg.sender, _loanAmount, interestRate, fullAmount, monthlyDeposit);
+        emit LogLoanCreation(loanId, msg.sender, _loanAmount, interestRate, fullAmount, monthlyDeposit, interestPerMonth);
+
         return loanId;
     }
 
@@ -199,11 +206,10 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
         // transfer NFT assuming the owner has approved this smart contract to execute transfer from 
        // ERC721(loans[_loanId].nftInfo.contractAddress).transferFrom(msg.sender, address(this), loans[_loanId].nftInfo.tokenId);
         
-
         // set the loan as Active
         loans[_loanId].status = LoanStatus.ACTIVE;
 
-        // update liquidity value  need to discuss update here or  during loan creation?
+        // update liquidity value  
          liquidityAvailable = liquidityAvailable - loans[_loanId].loanAmount;
 
         // transfer funds to the caller
@@ -221,20 +227,18 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     function payCompleteLoan(uint _loanId) external payable {
 
         require(msg.sender == loans[_loanId].borrower, "You must be the assigned borrower for this loan");
-        require(msg.value == (loans[_loanId].pendingAmount), "You must pay the full loan amount including interest");
+        require(msg.value == (loans[_loanId].remainingAmount), "You must pay the full loan amount including interest");
         require(loans[_loanId].status == LoanStatus.ACTIVE, "Loan status must be ACTIVE");
 
-        
         (bool success, ) = payable(address(this)).call{value: msg.value}("");
         require(success, "Error: Transfer failed.");
 
         loans[_loanId].status = LoanStatus.REPAID;
-        loans[_loanId].pendingAmount = 0;
+        loans[_loanId].remainingAmount = 0;
 
-        liquidityAvailable = liquidityAvailable + msg.value;
-      //  liquidityAvailable = liquidityAvailable + (msg.value - ((loans[_loanId].loanAmount * loans[_loanId].interest)/100));  // update liquidity pool back  // hide our earning value
-
-        emit LogLoanPaid(msg.sender, _loanId, msg.value, loans[_loanId].pendingAmount);
+        liquidityAvailable = liquidityAvailable + loans[_loanId].loanAmount; // add back just principle amount not the interest earned on the loan 
+     
+        emit LogLoanPaid(msg.sender, _loanId, msg.value, loans[_loanId].remainingAmount);
         emit LogLiquidityAvailable(liquidityAvailable);
     }
 
@@ -249,27 +253,27 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
         (bool success, ) = payable(address(this)).call{value: msg.value}("");
         require(success, "Error: Transfer failed.");
 
-        loans[_loanId].pendingAmount = loans[_loanId].pendingAmount - msg.value;
+        loans[_loanId].remainingAmount = loans[_loanId].remainingAmount - msg.value;
 
-        emit LogLoanDeposit(_loanId, msg.sender, msg.value, loans[_loanId].pendingAmount);
+        emit LogLoanDeposit(_loanId, msg.sender, msg.value, loans[_loanId].remainingAmount);
 
-        if(loans[_loanId].pendingAmount == 0)
+        if(loans[_loanId].remainingAmount == 0)
         {
             loans[_loanId].status = LoanStatus.REPAID;
 
-            emit LogLoanPaid(msg.sender, _loanId, msg.value, loans[_loanId].pendingAmount);
+            emit LogLoanPaid(msg.sender, _loanId, msg.value, loans[_loanId].remainingAmount);
         }
 
-        liquidityAvailable = liquidityAvailable + msg.value; // update liquidity pool back
+        liquidityAvailable = liquidityAvailable + (msg.value - loans[_loanId].interestAmountPerMonth); // update liquidity pool back subtracting the interest per month;
 
         emit LogLiquidityAvailable(liquidityAvailable);
     }
 
 
      // to do function to calculate full amount
-    function calculateInterestEarnedPerDay (uint _lendingAmount, uint _rateOfReturn, uint  _lendingDurationInYears) internal pure returns (uint) {
+    function calculateInterestEarnedPerDay (uint _totalInterestAmount, uint  _lendingDurationInYears) internal pure returns (uint) {
 
-        return (((_lendingAmount * _rateOfReturn)/ 100) /(365 * _lendingDurationInYears)) ;
+        return ((_totalInterestAmount) /(365 * _lendingDurationInYears)) ;
     }
 
     // Lender methods
@@ -279,7 +283,8 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
         uint lenderId = lenders.length;
         uint rateOfReturn =   lendingReturnRates[_lendingDurationInYears];
-        uint interestEarnedPerDay = calculateInterestEarnedPerDay(msg.value, rateOfReturn, _lendingDurationInYears);
+        uint interestAmount = (msg.value * rateOfReturn)/100;
+        uint interestEarnedPerDay = calculateInterestEarnedPerDay(interestAmount, _lendingDurationInYears);
 
         (bool success, ) = payable(address(this)).call{value: msg.value}("");
 
@@ -296,12 +301,11 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
             block.timestamp,
             lendingDurationInSecs,
             LenderStatus.ACTIVE,  
-            block.timestamp, // same as start date of lending
-            0 
+            block.timestamp // same as start date of lending
             )
         );
 
-        liquidityAvailable = liquidityAvailable + msg.value; 
+        liquidityAvailable = liquidityAvailable + (msg.value - interestAmount); 
 
         // Need to log from the lenders array object not from thes so lenders[lenderId]
 
@@ -326,15 +330,11 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
         uint interestEarned = lenders[_lenderId].interestEarnedPerDay * noOfInterestDayAccumulated;
 
-        // update interestPaid Till Date
-
-        lenders[_lenderId].interestPaidTillDate = lenders[_lenderId].interestPaidTillDate + interestEarned;
-
         // update latest date of interest redeemed 
 
         lenders[_lenderId].latestTimeOfInterestRedeemedInSecs = lenders[_lenderId].latestTimeOfInterestRedeemedInSecs + ( noOfInterestDayAccumulated * 24 * 60 * 60); // add a day
 
-        liquidityAvailable = liquidityAvailable - interestEarned; //update liquidity available
+        //liquidityAvailable = liquidityAvailable - interestEarned; //update liquidity available
 
         (bool success, ) = msg.sender.call{value: interestEarned}("");
 
@@ -356,24 +356,24 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
         require((lenders[_lenderId].durationInSecs + lenders[_lenderId].startTimeInSecs) <= block.timestamp, "lending fund is not matured yet" );
 
-        // uint interestNotRedeemed = (lenders[_lenderId].interestEarnedPerDay * (lenders[_lenderId].latestTimeOfInterestRedeemedInSecs / (24 * 60 * 60)))
-        //                              - lenders[_lenderId].interestPaidTillDate;
+
+        uint interestNotRedeemed = (lenders[_lenderId].interestEarnedPerDay * (lenders[_lenderId].durationInSecs - lenders[_lenderId].latestTimeOfInterestRedeemedInSecs)/ (24 * 60 * 60));
 
        //  uint remainingAmount = lenders[_lenderId].lendingAmount + interestNotRedeemed;
 
         lenders[_lenderId].status = LenderStatus.MATURED;
         
-        liquidityAvailable = liquidityAvailable - lenders[_lenderId].lendingAmount; //update liquidity available
+        liquidityAvailable = liquidityAvailable - lenders[_lenderId].lendingAmount; //update liquidity available 
 
-        (bool success, ) = msg.sender.call{value: lenders[_lenderId].lendingAmount}("");
+        uint totalAmountToRefund = interestNotRedeemed + lenders[_lenderId].lendingAmount;
+
+        (bool success, ) = msg.sender.call{value: totalAmountToRefund}("");
 
         require(success, "Error: Transfer failed."); 
 
-      // emit LogLenderRemainingInterestValue(interestNotRedeemed);
-
         emit LogLiquidityAvailable(liquidityAvailable);
 
-        emit LogLenderMatured(_lenderId, lenders[_lenderId].lender, lenders[_lenderId].lendingAmount);
+        emit LogLenderMatured(_lenderId, lenders[_lenderId].lender, lenders[_lenderId].lendingAmount, interestNotRedeemed);
 
     }
 

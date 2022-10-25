@@ -7,7 +7,7 @@ require("@openzeppelin/test-helpers/configure")({
 
 const LendBorrowContract = artifacts.require('LendBorrowContract.sol')
 
-const { balance, time, constants, expectRevert } = require('@openzeppelin/test-helpers');
+const { time, expectRevert } = require('@openzeppelin/test-helpers');
 
 contract('LendBorrowContract', accounts => {
   let lendBorrowInstance;
