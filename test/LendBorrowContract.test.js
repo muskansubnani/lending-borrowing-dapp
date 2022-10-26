@@ -53,7 +53,7 @@ it('deploys successfully', async function() {
 
 it('should get the liquidityAvailable', async function() {
     const liquidityAvailable = await lendBorrowInstance.getLiquidityAvailable();
-    assert.equal(liquidityAvailable, 50000);
+    assert.equal(liquidityAvailable, 47200);
     })
 
 it("should get all Lenders", async function() {
@@ -157,7 +157,7 @@ it("should pay Loan Monthly Deposit", async function() {
 
     let loanId=0;
     let value = 916;
-    let pendingAmount= 10084;
+    let remainingAmount= 10084;
     let user = accounts[3];
 
     await lendBorrowInstance.transferLoanFunds(loanId, {from: user});
@@ -169,7 +169,7 @@ it("should pay Loan Monthly Deposit", async function() {
     assert.equal(eventLoanDeposit._loanId, loanId, "Id is not correct");
     assert.equal(eventLoanDeposit._borrower, user, "user is not correct" );
     assert.equal(eventLoanDeposit._depositAmount, value, "deposit is not correct")
-    assert.equal(eventLoanDeposit._pendingAmount,  pendingAmount, "Pending Amount is not correct");
+    assert.equal(eventLoanDeposit._remainingAmount,  remainingAmount, "remaining Amount is not correct");
 })
 
 
@@ -178,7 +178,7 @@ it("should pay Complete Loan", async function() {
     let loanId=2;
     let user = accounts[6];
     let value = 11000;
-    let pendingAmount= 0;
+    let remainingAmount= 0;
 
     await lendBorrowInstance.transferLoanFunds(loanId , {from: user});
 
@@ -189,9 +189,7 @@ it("should pay Complete Loan", async function() {
     assert.equal(eventPayCompleteLoan._loanId, loanId, "Id is not correct");
     assert.equal(eventPayCompleteLoan._borrower, user, "user is not correct" );
     assert.equal(eventPayCompleteLoan._depositAmount, value, "deposit is not correct")
-    assert.equal(eventPayCompleteLoan._pendingAmount,  pendingAmount, "Pending Amount is not correct");
-
-
+    assert.equal(eventPayCompleteLoan._remainingAmount,  remainingAmount, "Remaining Amount is not correct");
 })
 
 it("should not redeem Interest for lender before 24 hours", async function() {
@@ -246,9 +244,8 @@ it("should redeem Interest for lender after 2 day", async function() {
 
 it("should refund lending amount after time duration for lending is ended", async function() {
 
-    let lenderId = 2;
-    let user = accounts[7];
-
+   let lenderId = 2;
+   let user = accounts[7];
    await time.increase(time.duration.years(2));
 
    const result = await lendBorrowInstance.retrieveLendersFund(lenderId, {from: user});
@@ -258,6 +255,5 @@ it("should refund lending amount after time duration for lending is ended", asyn
    assert.equal(eventRetrieveLendersFund._lenderId, lenderId, "Id is not correct");
    assert.equal(eventRetrieveLendersFund._lender, user, "Lender is not correct");
    assert.equal(eventRetrieveLendersFund._lenderAmount,  100000, "Lender amount  is not correct");
-
 })
 })
