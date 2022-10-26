@@ -1,43 +1,33 @@
 import { configureChains, defaultChains } from "wagmi";
-import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
+import { alchemyProvider } from "wagmi/providers/alchemy";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
-import { InjectedConnector } from "wagmi/connectors/injected";
 
-const infuraId = process.env.INFURA_ID; //get infura id 
+const alchemyId = process.env.ALCHEMY_ID;
 
-const { chains } = configureChains(defaultChains, [
-  infuraProvider({ infuraId }),
+const { chains, provider, webSocketProvider } = configureChains(defaultChains, [
+  alchemyProvider('8KgUMXBa4YmEhjxfxdpumPk3GHh7jh_0'),
   publicProvider(),
 ]);
 
 export const connectors = [
+  new MetaMaskConnector({ chains }),
+
   new CoinbaseWalletConnector({
     chains,
     options: {
-      appName: "dapp",
+      appName: "wagmi",
     },
   }),
-
   new WalletConnectConnector({
     chains,
     options: {
-      infuraId,
       qrcode: true,
     },
   }),
 
-  new MetaMaskConnector({
-    chains,
-  }),
-
-  // new InjectedConnector({
-  //   chains,
-  //   options: {
-  //     name: "Injected",
-  //     shimDisconnect: true,
-  //   },
-  // }),
+  provider,
+  webSocketProvider
 ];

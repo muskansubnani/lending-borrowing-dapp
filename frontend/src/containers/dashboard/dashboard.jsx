@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import {
     Flex,
     Heading,
@@ -8,17 +8,23 @@ import {
     IconButton,
     Divider,
     Link,
-} from '@chakra-ui/react'
+} from '@chakra-ui/react';
 import {
     FiHome,
     FiPieChart,
     FiDollarSign,
     FiBox,
     FiCalendar,
-} from "react-icons/fi"
+} from "react-icons/fi";
+import { useLocation } from 'react-router';
 
 export const Dashboard = () => {
+
+    const location = useLocation();
+
     return (
+        location.state?.accountType && <>
+        {console.log(location.state?.accountType)};
         <Flex
             h={[null, null, "100vh"]}
             maxW="20000px"
@@ -49,7 +55,7 @@ export const Dashboard = () => {
                             alignSelf="center"
                             letterSpacing="tight"
                         >
-                            Rise.
+                            Alo.
                         </Heading>
                         <Flex
                             flexDir={["row", "row", "column", "column", "column"]}
@@ -81,13 +87,6 @@ export const Dashboard = () => {
                                     <Text>Wallet</Text>
                                 </Link>
                             </Flex>
-                            <Flex className="sidebar-items" mr={[2, 6, 0, 0, 0]}>
-                                <Link display={["none", "none", "flex", "flex", "flex"]}>
-                                    <Icon as={FiBox} fontSize="2xl" /></Link>
-                                <Link _hover={{ textDecor: 'none' }} display={["flex", "flex", "none", "flex", "flex"]}>
-                                    <Text>Services</Text>
-                                </Link>
-                            </Flex>
                         </Flex>
                     </Flex>
                     <Flex flexDir="column" alignItems="center" mb={10} mt={5}>
@@ -99,7 +98,7 @@ export const Dashboard = () => {
 
             {/* Column 2 */}
             <Flex
-                w={["100%", "100%", "60%", "60%", "55%"]}
+                w={["100%", "100%", "60%", "60%", "100%"]}
                 p="3%"
                 flexDir="column"
                 overflow="auto"
@@ -127,6 +126,8 @@ export const Dashboard = () => {
                         <Divider />
                     </Flex>
                 </Flex>
-            </Flex>
+        </Flex>
+        </>
+      
     );
 }

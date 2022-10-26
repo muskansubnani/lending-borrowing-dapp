@@ -1,5 +1,6 @@
 class Wallet {
-    constructor(address) {
+    constructor(address, addressType) {
       this.address = address;
+      this.addressType = addressType; 
     }
   }

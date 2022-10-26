@@ -2,36 +2,47 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
-import { createClient, WagmiConfig } from "wagmi";
-import { ConnectKitProvider, getDefaultClient } from "connectkit";
+import { createClient, WagmiConfig,  chain , configureChains } from "wagmi";
 import { BrowserRouter } from "react-router-dom";
-import { Header } from "./containers/header";
 import { NavigationRoutes } from "./containers/navigation/routes";
 import { ChakraProvider } from "@chakra-ui/react";
+import { alchemyProvider } from "wagmi/providers/alchemy";
+import { publicProvider } from "wagmi/providers/public";
+import {RainbowKitProvider, getDefaultWallets} from "@rainbow-me/rainbowkit";
+import "@rainbow-me/rainbowkit/styles.css";
 
 window.Buffer = require("buffer/").Buffer;
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-const alchemyId = process.env.ALCHEMY_ID;
+const alchemyId = "6p1MspeAjewc6OFKGF_nRC51i9_lWjPi";
 
-const client = createClient(
-  getDefaultClient({
-    appName: "Your App Name",
-    alchemyId,
-  })
+const { chains, provider } = configureChains(
+  [chain.mainnet, chain.goerli, chain.optimism, chain.arbitrum],
+  [
+    alchemyProvider(alchemyId),
+    publicProvider()
+  ]
 );
+
+const { connectors } = getDefaultWallets({
+  appName: 'Lending Borrowing Dapp',
+  chains
+});
+
+const client = createClient({
+  autoConnect: true,
+  connectors,
+  provider
+})
 
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
       <ChakraProvider>
         <WagmiConfig client={client}>
-          <ConnectKitProvider>
-            <NavigationRoutes />
+        <RainbowKitProvider chains={chains}>
             <App />
-          </ConnectKitProvider>
+        </RainbowKitProvider>
         </WagmiConfig>
       </ChakraProvider>
-    </BrowserRouter>
   </React.StrictMode>
 );
