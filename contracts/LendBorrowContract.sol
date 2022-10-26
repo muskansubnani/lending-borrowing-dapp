@@ -356,8 +356,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
         require((lenders[_lenderId].durationInSecs + lenders[_lenderId].startTimeInSecs) <= block.timestamp, "lending fund is not matured yet" );
 
-
-        uint interestNotRedeemed = (lenders[_lenderId].interestEarnedPerDay * (lenders[_lenderId].durationInSecs - lenders[_lenderId].latestTimeOfInterestRedeemedInSecs)/ (24 * 60 * 60));
+        uint interestNotRedeemed = (lenders[_lenderId].interestEarnedPerDay * ((lenders[_lenderId].durationInSecs - (lenders[_lenderId].latestTimeOfInterestRedeemedInSecs - lenders[_lenderId].startTimeInSecs ))/ (24 * 60 * 60)));
 
        //  uint remainingAmount = lenders[_lenderId].lendingAmount + interestNotRedeemed;
 
