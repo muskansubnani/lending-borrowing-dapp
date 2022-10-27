@@ -17,14 +17,14 @@ import {
     FiCalendar,
 } from "react-icons/fi";
 import { useLocation } from 'react-router';
+import { useWallet } from './../../data/context/walletContext';
 
 export const Dashboard = () => {
+    const { walletType } = useWallet();
 
-    const location = useLocation();
+    console.log(walletType, 'walletType');
 
     return (
-        location.state?.accountType && <>
-        {console.log(location.state?.accountType)};
         <Flex
             h={[null, null, "100vh"]}
             maxW="20000px"
@@ -127,7 +127,5 @@ export const Dashboard = () => {
                     </Flex>
                 </Flex>
         </Flex>
-        </>
-      
     );
 }
