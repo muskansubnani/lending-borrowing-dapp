@@ -3,8 +3,6 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import { createClient, WagmiConfig,  chain , configureChains } from "wagmi";
-import { BrowserRouter } from "react-router-dom";
-import { NavigationRoutes } from "./containers/navigation/routes";
 import { ChakraProvider } from "@chakra-ui/react";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
