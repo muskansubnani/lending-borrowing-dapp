@@ -15,7 +15,7 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 const alchemyId = "6p1MspeAjewc6OFKGF_nRC51i9_lWjPi";
 
 const { chains, provider } = configureChains(
-  [chain.mainnet, chain.goerli, chain.optimism, chain.arbitrum],
+  [chain.mainnet, chain.goerli, chain.optimism, chain.arbitrum, chain.localhost],
   [
     alchemyProvider(alchemyId),
     publicProvider()
