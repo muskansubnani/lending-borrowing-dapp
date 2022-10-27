@@ -11,18 +11,22 @@ const { time, expectRevert } = require('@openzeppelin/test-helpers');
 
 contract('LendBorrowContract', accounts => {
   let lendBorrowInstance;
+  let lenderUser1 = accounts[1];
+  let lenderUser2 = accounts[2];
+  let loanUser1 = accounts[3];
+  let loanUser2 = accounts[4];
 
 before(async () => {
     lendBorrowInstance = await LendBorrowContract.deployed();
 
     //lenders
-    let lenderUser1 = accounts[1];
+    
     let lendingDuration1 = 2;
     let lendingValue1 = 30000 ;
     
     await lendBorrowInstance.createLender(lendingDuration1, {from: lenderUser1 , value: lendingValue1});
 
-    let lenderUser2 = accounts[2];
+   
     let lendingDuration2 = 1;
     let lendingValue2 = 20000;
     
@@ -31,13 +35,13 @@ before(async () => {
     //loaners
     let loanAmount1= 10000;
     let loanDuration1 = 1;
-    let loanUser1 = accounts[3];
+   
 
     await lendBorrowInstance.createLoan(loanAmount1, loanDuration1, { from: loanUser1});
 
     let loanAmount2= 20000;
     let loanDuration2 = 2;
-    let loanUser2 = accounts[4];
+    
 
     await lendBorrowInstance.createLoan(loanAmount2, loanDuration2, { from: loanUser2});
 
@@ -50,6 +54,8 @@ it('deploys successfully', async function() {
     assert.notEqual(address, null)
     assert.notEqual(address, undefined)
     })
+
+
 
 it('should get the liquidityAvailable', async function() {
     const liquidityAvailable = await lendBorrowInstance.getLiquidityAvailable();
@@ -190,6 +196,14 @@ it("should pay Complete Loan", async function() {
     assert.equal(eventPayCompleteLoan._borrower, user, "user is not correct" );
     assert.equal(eventPayCompleteLoan._depositAmount, value, "deposit is not correct")
     assert.equal(eventPayCompleteLoan._remainingAmount,  remainingAmount, "Remaining Amount is not correct");
+})
+
+it('should get the accountType correctly', async function() {
+    const accountTypeLender = await lendBorrowInstance.getAccountType(lenderUser1);
+    const accountTypeLoaner = await lendBorrowInstance.getAccountType(loanUser1);
+
+    assert.equal(accountTypeLender , "lender");
+    assert.equal(accountTypeLoaner , "borrower");
 })
 
 it("should not redeem Interest for lender before 24 hours", async function() {
