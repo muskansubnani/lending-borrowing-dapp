@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract LendBorrowContract is Ownable, ReentrancyGuard {
+
     enum LoanStatus {
         PENDING,
         ACTIVE,
@@ -94,6 +95,32 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
         return true;
     }
 
+
+    function getAccountType(address _address) public view returns (string memory ) {  // internal previously
+
+        string memory accountType; 
+
+        for(uint i=0; i < loans.length; i++) {
+
+            if(loans[i].borrower == _address && loans[i].status == LoanStatus.ACTIVE ) {
+
+                accountType ="borrower";
+            }
+        }
+        
+        for(uint i=0; i < lenders.length; i++) {
+
+            if(lenders[i].lender == _address && lenders[i].status == LenderStatus.ACTIVE ) {
+
+                accountType ="lender";
+            }
+        }
+
+        return accountType;
+    }
+
+
+
     function getLiquidityAvailable() external view returns (uint) {
 
         return liquidityAvailable;
@@ -159,6 +186,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     //, 
     //address _nftAddress, uint _nftTokenId
     ) external returns (uint) {
+
         require(_loanAmount <= liquidityAvailable, 'Sorry, we dont have enough liquidity at this moment to fund this loan');
         require(checkForActiveLoans(msg.sender), 'You have an outstanding loan, cannot create a new loan at this moment');
 
