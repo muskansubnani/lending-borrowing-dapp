@@ -20,6 +20,7 @@ const main = async (cb) => {
 
         let txn = await lendBorrow.redeemLendersInterest(lenderId, {from: user});
 
+        console.log(await web3.eth.getBalance(lendBorrow.address));
         console.log(txn);
         console.log(txn.logs[0].args);
         console.log(txn.logs[1].args);
