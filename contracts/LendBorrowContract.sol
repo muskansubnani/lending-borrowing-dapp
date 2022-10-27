@@ -98,13 +98,11 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
     function getAccountType(address _address) public view returns (string memory ) {  // internal previously
 
-        string memory accountType; 
-
         for(uint i=0; i < loans.length; i++) {
 
             if(loans[i].borrower == _address && loans[i].status == LoanStatus.ACTIVE ) {
 
-                accountType ="borrower";
+                return "borrower";
             }
         }
         
@@ -112,14 +110,12 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
             if(lenders[i].lender == _address && lenders[i].status == LenderStatus.ACTIVE ) {
 
-                accountType ="lender";
+                return "lender";
             }
         }
 
-        return accountType;
+        return "InActive";
     }
-
-
 
     function getLiquidityAvailable() external view returns (uint) {
 

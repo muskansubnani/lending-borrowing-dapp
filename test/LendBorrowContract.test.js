@@ -201,9 +201,11 @@ it("should pay Complete Loan", async function() {
 it('should get the accountType correctly', async function() {
     const accountTypeLender = await lendBorrowInstance.getAccountType(lenderUser1);
     const accountTypeLoaner = await lendBorrowInstance.getAccountType(loanUser1);
+    const accountTypeInActive = await lendBorrowInstance.getAccountType(accounts[8]);
 
     assert.equal(accountTypeLender , "lender");
     assert.equal(accountTypeLoaner , "borrower");
+    assert.equal( accountTypeInActive , "InActive");
 })
 
 it("should not redeem Interest for lender before 24 hours", async function() {
