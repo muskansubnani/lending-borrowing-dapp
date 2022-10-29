@@ -53,7 +53,6 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     Loan[] public loans;
     Lend[] public lenders;
 
-
     uint liquidityAvailable;
 
     mapping(uint => uint) public borrowingInterestRates;  
@@ -70,6 +69,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     event LogLiquidityAvailable(uint indexed _liquidityAvailable);
 
     constructor() {
+
       liquidityAvailable = 0;
     
       borrowingInterestRates[1] = 10; // 1 year => 10% interest
@@ -77,11 +77,13 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
       lendingReturnRates[1] = 5; // 1 year => 5% return
       lendingReturnRates[2] = 6;// 2 year => 6% return
+
     }
 
     receive() external payable {}
 
     function getAccountType(address _address) public view returns (string memory ) { 
+
         for(uint i=0; i < loans.length; i++) {
 
             if(loans[i].borrower == _address && loans[i].status == LoanStatus.ACTIVE ) {
@@ -97,6 +99,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
                 return "lender";
             }
         }
+
         return "InActive";
     }
 
@@ -107,11 +110,13 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
 
      // Method to get all Loaners
     function getAllLoaners() external view returns (Loan [] memory) {
+
         return loans;
     }
 
     // Method to get all lenders
     function getAllLenders() external view returns (Lend [] memory) {
+
         return lenders;
     }
 
@@ -148,7 +153,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     }
 
     // to do function to calculate full amount
-     function calculateTotalInterestOwedByBorrower(uint _loanAmount, uint _interestRate) internal pure returns (uint) {
+    function calculateTotalInterestOwedByBorrower(uint _loanAmount, uint _interestRate) internal pure returns (uint) {
 
        return ((_loanAmount * _interestRate)/100);
     }
@@ -162,20 +167,19 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     function createLoan (uint _loanAmount, uint _loanDuration, address _nftAddress, uint _nftTokenId, uint _nftFloorPrice
     ) external payable nonReentrant returns (uint) {
 
-        require(IERC721(_nftAddress).ownerOf(_nftTokenId) == msg.sender, "Not owner of nft");
+        require(IERC721(_nftAddress).ownerOf(_nftTokenId) == msg.sender, "Not the owner of NFT.");
 
-        require(_loanAmount <= _nftFloorPrice, 'Sorry, we cannot approve this loan for the given nft collateral');
+        require(_loanAmount <= _nftFloorPrice, "Sorry, we cannot approve this loan. The provide NFT collateral values less than the loan.");
 
-        require(_loanAmount <= liquidityAvailable, 'Sorry, we dont have enough liquidity at this moment to fund this loan');
+        require(_loanAmount <= liquidityAvailable, "Sorry, we dont have enough liquidity at this moment to fund this loan.");
 
         string memory accountType = getAccountType(msg.sender);
 
-        require(keccak256(abi.encodePacked(accountType)) != keccak256(abi.encodePacked("borrower")), 'You have an outstanding loan, cannot create a new loan at this moment');
+        require(keccak256(abi.encodePacked(accountType)) != keccak256(abi.encodePacked("borrower")), "You have an outstanding loan, cannot create a new loan at this moment.");
         
-        require(keccak256(abi.encodePacked(accountType)) != keccak256(abi.encodePacked("lender")), 'Sorry, you can either be an active loaner or a lender at a given time.');
+        require(keccak256(abi.encodePacked(accountType)) != keccak256(abi.encodePacked("lender")), "Sorry, you can either be an active loaner or a lender at a given time.");
         
         require(IERC721(_nftAddress).getApproved(_nftTokenId) == address(this), "You need to set the contract as an approved address for NFT");
-
 
         // transfer NFT - the owner has approved this smart contract to execute transfer from 
         IERC721(_nftAddress).transferFrom(msg.sender, address(this), _nftTokenId);
@@ -189,7 +193,7 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
         require(success, "Error: Transfer failed.");
 
         uint loanId = addLoan(_loanAmount, _loanDuration, _nftAddress,_nftTokenId);
-
+        
         emit LogLoanCreation(loanId,loans[loanId].borrower, loans[loanId].loanAmount, loans[loanId].interest, loans[loanId].fullAmount,
         loans[loanId].monthlyDeposit, loans[loanId].interestAmountPerMonth, loans[loanId].nftInfo.contractAddress, loans[loanId].nftInfo.tokenId);
 
@@ -198,44 +202,46 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
         return loanId;
     }
 
-function addLoan( uint _loanAmount, uint _loanDuration, address _nftAddress, uint _nftTokenId) internal returns (uint)
-{
-    uint loanId = loans.length;
+    function addLoan( uint _loanAmount, uint _loanDuration, address _nftAddress, uint _nftTokenId) internal returns (uint)
+    {
+        uint loanId = loans.length;
 
-    uint interestRate = borrowingInterestRates[_loanDuration];
+        uint interestRate = borrowingInterestRates[_loanDuration];
 
-    uint interestAmount = calculateTotalInterestOwedByBorrower(_loanAmount, interestRate);
+        uint interestAmount = calculateTotalInterestOwedByBorrower(_loanAmount, interestRate);
 
-    uint interestPerMonth = interestAmount/ (_loanDuration * 12);
+        uint interestPerMonth = interestAmount/ (_loanDuration * 12);
 
-    uint fullAmount = _loanAmount + interestAmount;
+        uint fullAmount = _loanAmount + interestAmount;
 
-    uint monthlyDeposit = calculateMonthlyLoanDeposit(fullAmount, _loanDuration * 12);
+        uint monthlyDeposit = calculateMonthlyLoanDeposit(fullAmount, _loanDuration * 12);
 
-        loans.push(
-            Loan(
-                loanId, 
-                _loanAmount,
-                fullAmount,
-                fullAmount,  // initially remaining amount equals fullAmount
-                interestPerMonth,
-                interestRate, 
-                msg.sender,
-                LoanStatus.ACTIVE,
-                block.timestamp,
-                _loanDuration,
-                Nft(_nftAddress, _nftTokenId),
-                monthlyDeposit
-            ));
+            loans.push(
+                Loan(
+                    loanId, 
+                    _loanAmount,
+                    fullAmount,
+                    fullAmount,  // initially remaining amount equals fullAmount
+                    interestPerMonth,
+                    interestRate, 
+                    msg.sender,
+                    LoanStatus.ACTIVE,
+                    block.timestamp,
+                    _loanDuration,
+                    Nft(_nftAddress, _nftTokenId),
+                    monthlyDeposit
+                ));
 
-        return loanId;
+            return loanId;
     }
 
     // method for borrowers to pay entire amount
     function payCompleteLoan(uint _loanId) external payable {
 
         require(msg.sender == loans[_loanId].borrower, "You must be the assigned borrower for this loan");
+
         require(msg.value == (loans[_loanId].remainingAmount), "You must pay the full loan amount including interest");
+
         require(loans[_loanId].status == LoanStatus.ACTIVE, "Loan status must be ACTIVE");
 
         (bool success, ) = payable(address(this)).call{value: msg.value}("");
@@ -249,6 +255,7 @@ function addLoan( uint _loanAmount, uint _loanDuration, address _nftAddress, uin
         liquidityAvailable = liquidityAvailable + loans[_loanId].loanAmount; // add back just principle amount not the interest earned on the loan 
      
         emit LogLoanPaid(msg.sender, _loanId, msg.value, loans[_loanId].remainingAmount);
+
         emit LogLiquidityAvailable(liquidityAvailable);
     }
 
@@ -256,11 +263,15 @@ function addLoan( uint _loanAmount, uint _loanDuration, address _nftAddress, uin
     function payLoanMonthlyDeposit(uint _loanId) external payable 
     {
         require(loans[_loanId].status == LoanStatus.ACTIVE, "Loan status must be Active");
+
         require(msg.value >= loans[_loanId].monthlyDeposit, "You must deposit amount atleast the monthly deposit amount ");
+
         require(msg.value <= loans[_loanId].fullAmount, "Your deposit amount exceeds your loan amount");
+
         require(msg.sender == loans[_loanId].borrower, "You must be the assigned borrower for this loan");
         
         (bool success, ) = payable(address(this)).call{value: msg.value}("");
+
         require(success, "Error: Transfer failed.");
 
         loans[_loanId].remainingAmount = loans[_loanId].remainingAmount - msg.value;
@@ -290,16 +301,20 @@ function addLoan( uint _loanAmount, uint _loanDuration, address _nftAddress, uin
     {
         require(msg.value >0, "Please enter a valid amount to lend");
 
-        require(keccak256(abi.encodePacked(getAccountType(msg.sender))) != keccak256(abi.encodePacked("borrower")), 'Sorry, you can either be an active loaner or a lender at a given time.');
+        require(keccak256(abi.encodePacked(getAccountType(msg.sender))) != keccak256(abi.encodePacked("borrower")), "Sorry, you can either be an active loaner or a lender at a given time.");
        
         uint lenderId = lenders.length;
+
         uint rateOfReturn =   lendingReturnRates[_lendingDurationInYears];
+
         uint interestAmount = (msg.value * rateOfReturn)/100;
+
         uint interestEarnedPerDay = calculateInterestEarnedPerDay(interestAmount, _lendingDurationInYears);
 
         (bool success, ) = payable(address(this)).call{value: msg.value}("");
 
         uint lendingDurationInSecs = _lendingDurationInYears * 365 * 24 * 60 * 60;
+
         require(success, "Error: Transfer failed.");
 
         lenders.push(
@@ -349,7 +364,6 @@ function addLoan( uint _loanAmount, uint _loanDuration, address _nftAddress, uin
         emit LogLenderInterestRedemption( _lenderId, lenders[_lenderId].lender, interestEarned,  lenders[_lenderId].latestTimeOfInterestRedeemedInSecs); 
 
         emit LogLiquidityAvailable(liquidityAvailable);
-
     }
 
     // method to transfer back locked amount for lenders after the duration is complete
@@ -357,7 +371,7 @@ function addLoan( uint _loanAmount, uint _loanDuration, address _nftAddress, uin
 
         require(msg.sender == lenders[_lenderId].lender, "You must be the assigned lender");
 
-        require( lenders[_lenderId].status == LenderStatus.ACTIVE, "lending fund is not active" );
+        require(lenders[_lenderId].status == LenderStatus.ACTIVE, "lending fund is not active" );
 
         require((lenders[_lenderId].durationInSecs + lenders[_lenderId].startTimeInSecs) <= block.timestamp, "lending fund is not matured yet" );
 
@@ -376,6 +390,6 @@ function addLoan( uint _loanAmount, uint _loanDuration, address _nftAddress, uin
         emit LogLiquidityAvailable(liquidityAvailable);
 
         emit LogLenderMatured(_lenderId, lenders[_lenderId].lender, lenders[_lenderId].lendingAmount, interestNotRedeemed);
-
     }
+
 }

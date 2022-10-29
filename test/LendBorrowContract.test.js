@@ -5,12 +5,16 @@ require("@openzeppelin/test-helpers/configure")({
     },
   });
 
-const LendBorrowContract = artifacts.require('LendBorrowContract.sol')
+const LendBorrowContract = artifacts.require('LendBorrowContract.sol');
+const TestNftContract = artifacts.require('TestNft.sol');
 
 const { time, expectRevert } = require('@openzeppelin/test-helpers');
 
 contract('LendBorrowContract', accounts => {
+
   let lendBorrowInstance;
+  let testNft;
+  let testNftContractAddress;
   let lenderUser1 = accounts[1];
   let lenderUser2 = accounts[2];
   let loanUser1 = accounts[3];
@@ -19,31 +23,39 @@ contract('LendBorrowContract', accounts => {
 before(async () => {
     lendBorrowInstance = await LendBorrowContract.deployed();
 
+    testNft = await TestNftContract.deployed();
+
+    testNftContractAddress = testNft.address;
+
     //lenders
     
     let lendingDuration1 = 2;
-    let lendingValue1 = 30000 ;
+    let lendingValue1 = 50000 ;
     
     await lendBorrowInstance.createLender(lendingDuration1, {from: lenderUser1 , value: lendingValue1});
 
    
     let lendingDuration2 = 1;
-    let lendingValue2 = 20000;
+    let lendingValue2 = 50000;
     
     await lendBorrowInstance.createLender(lendingDuration2, {from: lenderUser2 , value: lendingValue2});
 
     //loaners
     let loanAmount1= 10000;
+    let nftFloorPrice1= 10000;
     let loanDuration1 = 1;
-   
 
-    await lendBorrowInstance.createLoan(loanAmount1, loanDuration1, { from: loanUser1});
+    await testNft.mint("fakeURI", {from:  loanUser1 });
+   
+    await lendBorrowInstance.createLoan(loanAmount1, loanDuration1,  testNftContractAddress, 1, nftFloorPrice1, { from: loanUser1});
 
     let loanAmount2= 20000;
+    let nftFloorPrice2 = 20000;
     let loanDuration2 = 2;
     
+    await testNft.mint("fakeURI", {from:  loanUser2});
 
-    await lendBorrowInstance.createLoan(loanAmount2, loanDuration2, { from: loanUser2});
+    await lendBorrowInstance.createLoan(loanAmount2, loanDuration2,  testNftContractAddress, 2, nftFloorPrice2, { from: loanUser2});
 
     })
 
@@ -56,10 +68,9 @@ it('deploys successfully', async function() {
     })
 
 
-
 it('should get the liquidityAvailable', async function() {
     const liquidityAvailable = await lendBorrowInstance.getLiquidityAvailable();
-    assert.equal(liquidityAvailable, 47200);
+    assert.equal(liquidityAvailable, 64500);
     })
 
 it("should get all Lenders", async function() {
@@ -95,36 +106,101 @@ it("should get given address lendings", async function() {
 
 it("should create Loan correctly", async function() {
 
-
-    let loanAmount= 10000;
+    let loanAmount = 10000;
+    let nftFloorPrice= 11000;
     let loanDuration= 1;
     let loanUser= accounts[6];
 
-
+    await testNft.mint("fakeURI", {from: loanUser});
+   
     let expectedLoan = {
         Id: 2,
         loanAmount: loanAmount,
         fullAmount: 11000,
-        pendingAmount: 11000,
+        remainingAmount: 11000,
+        interestAmountPerMonth:83, 
         interest: 10,
         borrower: loanUser,
+        nft :
+        {
+           nftContract :testNftContractAddress, 
+           nftTokenId : 3
+        },
         duration: loanDuration,
         monthlyDeposit: 916
       };
 
-    const result = await lendBorrowInstance.createLoan(loanAmount, loanDuration, { from: loanUser});
+    const result = await lendBorrowInstance.createLoan(loanAmount, loanDuration, testNftContractAddress, 3, nftFloorPrice, { from: loanUser});
 
     const eventLoanCreation = result.logs[0].args;
-   
+  
     assert.equal(eventLoanCreation._loanId, expectedLoan.Id, "Id is not correct");
     assert.equal(eventLoanCreation._borrower, expectedLoan.borrower, "Borrower is not correct" );
-    assert.equal(eventLoanCreation._amount, expectedLoan.loanAmount, "LoanAmount is not correct")
+    assert.equal(eventLoanCreation._amount, expectedLoan.loanAmount, "LoanAmount is not correct");
     assert.equal(eventLoanCreation._interest, expectedLoan.interest, "interest is not correct");
     assert.equal(eventLoanCreation._fullAmount, expectedLoan.fullAmount, "FullAmount is not correct");
     assert.equal(eventLoanCreation._monthlyDepositAmount, expectedLoan.monthlyDeposit, "monthlyDeposit is not correct");
+    assert.equal(eventLoanCreation._monthlyInterest, expectedLoan.interestAmountPerMonth, "monthly interest is not correct")
+    assert.equal(eventLoanCreation._nftContract, expectedLoan.nft.nftContract, "NFT contract address is not correct");
+    assert.equal(eventLoanCreation._nftTokenId, expectedLoan.nft.nftTokenId, "NFT token Id is not correct");
+})
 
+it("should not create loan if NFT floor price is less than loan value", async function() {
 
+    let loanAmount = 10000;
+    let nftFloorPrice= 9000;
+    let loanDuration= 1;
+    let loanUser= accounts[8];
 
+    await testNft.mint("fakeURI", {from: loanUser});
+
+    await expectRevert(
+      lendBorrowInstance.createLoan(loanAmount, loanDuration, testNftContractAddress, 4, nftFloorPrice, { from: loanUser}),
+      "Sorry, we cannot approve this loan. The provide NFT collateral values less than the loan."
+    );
+})
+
+it("should not create loan if not the owner of NFT", async function() {
+
+  let loanAmount = 10000;
+  let nftFloorPrice= 10000;
+  let loanDuration= 1;
+  let loanUser= accounts[8];
+
+  await expectRevert(
+    lendBorrowInstance.createLoan(loanAmount, loanDuration, testNftContractAddress, 3, nftFloorPrice, { from: loanUser}),
+    "Not the owner of NFT."
+  );
+})
+
+it("should not create a loan if borrower has already borrowed", async function() {
+
+  let loanAmount = 10000;
+  let nftFloorPrice= 10000;
+  let loanDuration= 1;
+  let loanUser= accounts[1];
+
+  await testNft.mint("fakeURI", {from:  loanUser });
+
+  await expectRevert(
+    lendBorrowInstance.createLoan(loanAmount, loanDuration, testNftContractAddress, 5, nftFloorPrice, { from: loanUser}),
+    "Sorry, you can either be an active loaner or a lender at a given time."
+  );
+})
+
+it("should not create lending if lender has an active loan", async function() {
+
+  let loanAmount = 10000;
+  let nftFloorPrice= 11000;
+  let loanDuration= 1;
+  let loanUser= accounts[6];
+
+  await testNft.mint("fakeURI", {from:  loanUser });
+
+  await expectRevert(
+    lendBorrowInstance.createLoan(loanAmount, loanDuration, testNftContractAddress, 6, nftFloorPrice, { from: loanUser}),
+    "You have an outstanding loan, cannot create a new loan at this moment."
+  );
 })
 
 it("should create Lender correctly", async function() {
@@ -152,12 +228,7 @@ it("should create Lender correctly", async function() {
     assert.equal(eventLenderCreation._rateOfReturn, expectedLender.rateOfReturn, "Rate of Return is not correct");
     assert.equal(eventLenderCreation._interestEarnedPerDay, expectedLender.interestEarnedPerDay, "interest earned per is not correct");
     assert.equal(eventLenderCreation._lendingDurationInSecs, 63072000, "duration in secs not correct");  // 2 years => 63072000 secs
-
-
 })
-
-
-//Todo
 
 it("should pay Loan Monthly Deposit", async function() {
 
@@ -165,8 +236,6 @@ it("should pay Loan Monthly Deposit", async function() {
     let value = 916;
     let remainingAmount= 10084;
     let user = accounts[3];
-
-    await lendBorrowInstance.transferLoanFunds(loanId, {from: user});
 
     const result = await lendBorrowInstance.payLoanMonthlyDeposit(loanId, {from: user, value: value});
 
@@ -178,15 +247,12 @@ it("should pay Loan Monthly Deposit", async function() {
     assert.equal(eventLoanDeposit._remainingAmount,  remainingAmount, "remaining Amount is not correct");
 })
 
-
 it("should pay Complete Loan", async function() {
 
     let loanId=2;
     let user = accounts[6];
     let value = 11000;
     let remainingAmount= 0;
-
-    await lendBorrowInstance.transferLoanFunds(loanId , {from: user});
 
     const result = await lendBorrowInstance.payCompleteLoan(loanId, {from: user, value: value});
 
@@ -199,6 +265,7 @@ it("should pay Complete Loan", async function() {
 })
 
 it('should get the accountType correctly', async function() {
+
     const accountTypeLender = await lendBorrowInstance.getAccountType(lenderUser1);
     const accountTypeLoaner = await lendBorrowInstance.getAccountType(loanUser1);
     const accountTypeInActive = await lendBorrowInstance.getAccountType(accounts[8]);
@@ -223,7 +290,7 @@ it("should not redeem Interest for lender before 24 hours", async function() {
 
 it("should redeem Interest for lender after 1 day", async function() {
 
-    let lenderId = 2;
+   let lenderId = 2;
     let user = accounts[7];
     let interestRedeemed = 8;
 
@@ -241,9 +308,9 @@ it("should redeem Interest for lender after 1 day", async function() {
 
 it("should redeem Interest for lender after 2 day", async function() {
 
-    let lenderId = 2;
-    let user = accounts[7];
-    let interestRedeemed = 16;
+  let lenderId = 2;
+  let user = accounts[7];
+  let interestRedeemed = 16;
 
    await time.increase(time.duration.days(2));
 
@@ -262,6 +329,7 @@ it("should refund lending amount after time duration for lending is ended", asyn
 
    let lenderId = 2;
    let user = accounts[7];
+
    await time.increase(time.duration.years(2));
 
    const result = await lendBorrowInstance.retrieveLendersFund(lenderId, {from: user});
@@ -271,5 +339,8 @@ it("should refund lending amount after time duration for lending is ended", asyn
    assert.equal(eventRetrieveLendersFund._lenderId, lenderId, "Id is not correct");
    assert.equal(eventRetrieveLendersFund._lender, user, "Lender is not correct");
    assert.equal(eventRetrieveLendersFund._lenderAmount,  100000, "Lender amount  is not correct");
+   
 })
 })
+
+
