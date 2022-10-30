@@ -6,8 +6,8 @@ import {
   DrawerContent,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useLinkItems } from "../../containers/dashboard/linkItems";
 import { SidebarContent } from "./../../components/dashboard/sidebarContent";
+import { useLinkItems } from './../../data/hooks/useLinkItems';
 
 export const Dashboard = ({ children }) => {
   const { isOpen, onClose } = useDisclosure();
