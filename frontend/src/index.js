@@ -12,7 +12,6 @@ import "@rainbow-me/rainbowkit/styles.css";
 window.Buffer = require("buffer/").Buffer;
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-console.log('infura', process.env.REACT_APP_ALCHEMY_API_KEY);
 
 const { chains, provider } = configureChains(
   [chain.goerli, chain.localhost],
