@@ -2,45 +2,48 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
-import { createClient, WagmiConfig,  chain , configureChains } from "wagmi";
+import { createClient, WagmiConfig, chain, configureChains } from "wagmi";
 import { ChakraProvider } from "@chakra-ui/react";
-import { alchemyProvider } from "wagmi/providers/alchemy";
+import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
-import {RainbowKitProvider, getDefaultWallets} from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, getDefaultWallets } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 
 window.Buffer = require("buffer/").Buffer;
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-const alchemyId = "6p1MspeAjewc6OFKGF_nRC51i9_lWjPi";
+console.log('infura', process.env.REACT_APP_INFURA_API_KEY);
 
 const { chains, provider } = configureChains(
-  [chain.mainnet, chain.goerli, chain.optimism, chain.arbitrum, chain.localhost],
+  [chain.goerli, chain.localhost],
   [
-    alchemyProvider(alchemyId),
-    publicProvider()
+    infuraProvider({
+      apiKey: "",
+      priority: 0,
+    }),
+    publicProvider({ priority: 1 }),
   ]
 );
 
 const { connectors } = getDefaultWallets({
-  appName: 'Lending Borrowing Dapp',
-  chains
+  appName: "Lending Borrowing Dapp",
+  chains,
 });
 
 const client = createClient({
   autoConnect: true,
   connectors,
-  provider
-})
+  provider,
+});
 
 root.render(
   <React.StrictMode>
-      <ChakraProvider>
-        <WagmiConfig client={client}>
+    <ChakraProvider>
+      <WagmiConfig client={client}>
         <RainbowKitProvider chains={chains}>
-            <App />
+          <App />
         </RainbowKitProvider>
-        </WagmiConfig>
-      </ChakraProvider>
+      </WagmiConfig>
+    </ChakraProvider>
   </React.StrictMode>
 );
