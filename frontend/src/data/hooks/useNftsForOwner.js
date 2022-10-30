@@ -6,7 +6,7 @@ import { Alchemy, Network } from "alchemy-sdk";
 export const useNftsForOwner = () => {
   const { walletType } = useWallet();
   const { address } = useAccount();
-  const [ownerNfts, setOwnerNfts] = useState([]);
+  const [ownerNfts, setOwnerNfts] = useState(null);
 
   const config = {
     apiKey: process.env.REACT_APP_ALCHEMY_API_KEY,
@@ -16,7 +16,13 @@ export const useNftsForOwner = () => {
   const alchemy = new Alchemy(config);
 
   useEffect(() => {
-    if (!address || !walletType || walletType === "InActive") return;
+    if (
+      !address ||
+      !walletType ||
+      walletType === "InActive" ||
+      walletType === "borrower"
+    )
+      return;
 
     const getNftsForOwner = async () => {
       const response = await alchemy.nft.getNftsForOwner(address);
