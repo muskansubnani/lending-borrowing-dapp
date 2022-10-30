@@ -11,7 +11,7 @@ export const AccountSignup = () => {
 
   const onSelectionChanged = (selectedAccountType) => {
     setWalletType(selectedAccountType);
-    navigation("/dashboard");
+    navigation(`/`);
   };
 
   return (
@@ -19,10 +19,10 @@ export const AccountSignup = () => {
       <ButtonGroup variant="outline" spacing="6">
         <Button
           onClick={() => {
-            onSelectionChanged("lenderer");
+            onSelectionChanged("lender");
           }}
         >
-          Lenderer
+          Lender
         </Button>
         <Button
           onClick={() => {

@@ -33,12 +33,16 @@ export const HeaderContainer = () => {
   }, [address]);
 
   useEffect(() => {
+    if(!walletType)
+      return;
+      
     if (walletType === "InActive") {
       navigation("/signup");
       return;
     }
 
-    navigation("/dashboard");
+    navigation(`/`);
+    return;
   }, [walletType]);
 
   return <div></div>;
