@@ -9,6 +9,7 @@
     "@emotion/styled": "^11.10.4",
     "@ethersproject/abi": "^5.7.0",
     "@rainbow-me/rainbowkit": "^0.7.3",
+    "alchemy-sdk": "^2.2.0",
     "buffer": "^6.0.3",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2",

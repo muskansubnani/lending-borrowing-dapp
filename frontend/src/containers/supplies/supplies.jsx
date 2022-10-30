@@ -1,5 +1,8 @@
 import React from "react";
+import { useNftsForOwner } from './../../data/hooks/useNftsForOwner';
 
 export const Supplies = () => {
-  return <div>Supplies</div>;
+  const {ownerNfts} = useNftsForOwner();
+  
+  return <div></div>;
 };

@@ -2,8 +2,6 @@ import { Link, Flex, Icon } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 
 export const LinkItem = ({ pathName, icon, children, ...rest }) => {
-  console.log("pathName", pathName);
-
   return (
     <Link
       as={RouterLink}
