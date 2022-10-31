@@ -7,12 +7,19 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   useDisclosure,
+  Container,
+  VStack,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import React from "react";
+import { useNft } from './../../data/context/nftContext';
 
-export const OverlayModal = ({ buttonText, title, body, size }) => {
+export const OverlayModal = ({ modalData, buttonText, title, size }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { setSelectedNft } = useNft();
 
   const Overlay = () => (
     <ModalOverlay
@@ -22,6 +29,11 @@ export const OverlayModal = ({ buttonText, title, body, size }) => {
       backdropBlur="2px"
     />
   );
+
+  const onNftSelected = (nft) => {
+    setSelectedNft(nft);
+    onClose();
+  };
 
   return (
     <>
@@ -33,7 +45,35 @@ export const OverlayModal = ({ buttonText, title, body, size }) => {
         <ModalContent>
           <ModalHeader>{title}</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>{body}</ModalBody>
+          <ModalBody>
+            <Container>
+              {!modalData && (
+                <Spinner
+                  thickness="4px"
+                  speed="0.65s"
+                  emptyColor="gray.200"
+                  color="blue.500"
+                  size="xl"
+                />
+              )}
+              <VStack>
+                <Wrap spacing={4}>
+                  {modalData &&
+                    modalData.map((nft) => (
+                      <WrapItem>
+                        <Button
+                          colorScheme="blackAlpha"
+                          onClick={() => onNftSelected(nft)}
+                        >
+                          tokenId:{nft.tokenId}-[{nft.contractAddress}
+                          ] price: {nft.floorPrice}
+                        </Button>
+                      </WrapItem>
+                    ))}
+                </Wrap>
+              </VStack>
+            </Container>
+          </ModalBody>
           <ModalFooter>
             <Button onClick={onClose}>Close</Button>
           </ModalFooter>

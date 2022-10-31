@@ -11,10 +11,12 @@ import { Supplies } from './containers/supplies/supplies';
 import { Loans } from './containers/loans/loans';
 import { History } from './containers/history/history';
 import { Faq } from './containers/faq/faq';
+import { NftProvider } from "./data/context/nftContext";
 
 const App = () => {
   return (
     <WalletProvider>
+    <NftProvider>
       <BrowserRouter>
       <Dashboard>
         <Header>
@@ -34,6 +36,7 @@ const App = () => {
         </Dashboard>
         <HeaderContainer />
       </BrowserRouter>
+      </NftProvider>
     </WalletProvider>
   );
 };

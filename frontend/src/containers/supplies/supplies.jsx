@@ -1,4 +1,4 @@
-import { Button, Container } from "@chakra-ui/react";
+import { Container } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { OverlayModal } from "../../components/modal/overlayModal";
 import { useNftCollectionsForOwner } from "../../data/hooks/useCollectionsForOwner";
@@ -41,29 +41,13 @@ export const Supplies = () => {
     setNftModalData(nfts);
   };
 
-  const onNftSelected = (e) =>{
-    console.log('selected', e);
-  }
-
-  const getNftModalBody = () => {
-    return (
-      <>
-        {nftModalData && nftModalData.map((nft) => (
-          <Button onClick={onNftSelected()}>
-            {nft.title}-{nft.tokenId}-{nft.contractAddress}---{nft.floorPrice}
-          </Button>
-        ))}
-      </>
-    );
-  };
-
   return (
     <Container m={3} mt={10} centerContent>
       <OverlayModal
         buttonText="Select NFT as guarantee"
         title="Select NFT"
         size ="xl"
-        body={getNftModalBody()}
+        modalData={nftModalData}
       />
     </Container>
   );
