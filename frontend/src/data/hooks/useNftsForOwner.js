@@ -20,7 +20,7 @@ export const useNftsForOwner = () => {
       !address ||
       !walletType ||
       walletType === "InActive" ||
-      walletType === "borrower"
+      walletType === "lender"
     )
       return;
 

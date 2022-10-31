@@ -16,15 +16,16 @@ export const useLinkItems = () => {
 };
 
 const getLinkItems = (walletType) => {
-  if (walletType === "lender") {
+  if (walletType === "borrower") {
     return [
-      { name: "Supplies", icon: FiTrendingUp, path: "supplies" },
+      { name: "New Loan", icon: FiTrendingUp, path: "supplies" },
+      { name: "Loans", icon: FiTrendingUp, path: "loans" },
       { name: "History", icon: FiCompass, path: "history" },
       { name: "FAQ", icon: FiCompass, path: "faq" },
     ];
   }
 
-  if (walletType === "borrower") {
+  if (walletType === "lender") {
     return [
       { name: "Loans", icon: FiTrendingUp, path: "loans" },
       { name: "History", icon: FiCompass, path: "history" },

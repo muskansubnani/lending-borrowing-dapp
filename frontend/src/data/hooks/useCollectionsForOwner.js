@@ -13,7 +13,7 @@ export const useNftCollectionsForOwner = () => {
       !address ||
       !walletType ||
       walletType === "InActive" ||
-      walletType === "borrower"
+      walletType === "lender"
     ) {
       return;
     }
