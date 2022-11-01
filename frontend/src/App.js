@@ -9,6 +9,7 @@ import { HeaderContainer } from "./containers/header/headerContainer";
 import { Home } from "./containers/home/home";
 import { Supplies } from './containers/supplies/supplies';
 import { Loans } from './containers/loans/loans';
+import { CreateLending } from "./containers/lendings/createLending";
 import { History } from './containers/history/history';
 import { Faq } from './containers/faq/faq';
 import { NftProvider } from "./data/context/nftContext";
@@ -27,8 +28,10 @@ const App = () => {
               <Route exact path="/faq" element={<Faq />} />
 
               <Route element={<RequireWallet />}>
+              
                 <Route exact path="/supplies" element={<Supplies />} />
                 <Route exact path="/loans" element={<Loans />} />
+                <Route exact path="/createlending" element={<CreateLending/>} />
                 <Route exact path="/history" element={<History />} />
               </Route>
             </Routes>
