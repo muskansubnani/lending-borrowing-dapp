@@ -17,7 +17,7 @@ const { chains, provider } = configureChains(
   [chain.goerli, chain.localhost],
   [
     infuraProvider({
-      apiKey: "",
+      apiKey: process.env.REACT_APP_INFURA_API_KEY,
       priority: 0,
     }),
     publicProvider({ priority: 1 }),
@@ -36,7 +36,6 @@ const client = createClient({
 });
 
 root.render(
-  <React.StrictMode>
     <ChakraProvider>
       <WagmiConfig client={client}>
         <RainbowKitProvider chains={chains}>
@@ -44,5 +43,4 @@ root.render(
         </RainbowKitProvider>
       </WagmiConfig>
     </ChakraProvider>
-  </React.StrictMode>
 );
