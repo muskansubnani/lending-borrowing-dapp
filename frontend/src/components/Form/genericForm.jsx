@@ -7,22 +7,22 @@ import {
   Input,
   VStack,
   Text,
-  Heading
+  Heading,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-
-const validationSchema = Yup.object({
-  amount: Yup.number().required().min(0).max(100),
-  duration: Yup.number().required().min(0).max(2),
-});
 
 const initialValues = {
   amount: 0,
   duration: 0,
 };
 
-export const GenericForm = ({ handleSubmit }) => {
+export const GenericForm = ({ handleSubmit, maxAmount }) => {
+  const validationSchema = Yup.object({
+    amount: Yup.number().required().min(0).max(maxAmount),
+    duration: Yup.number().required().min(0).max(2),
+  });
+
   const formik = useFormik({
     initialValues: initialValues,
     onSubmit: (values) => {
@@ -36,7 +36,7 @@ export const GenericForm = ({ handleSubmit }) => {
       <Box bg="white" p={10} rounded="md">
         <form onSubmit={formik.handleSubmit}>
           <VStack spacing={6} align="flex-start">
-          <Heading>Create Loan</Heading>
+            <Heading>Create Loan</Heading>
             <FormControl>
               <FormLabel htmlFor="amount">Amount</FormLabel>
               <Input
