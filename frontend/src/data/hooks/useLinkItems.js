@@ -27,7 +27,7 @@ const getLinkItems = (walletType) => {
 
   if (walletType === "lender") {
     return [
-      { name: "Loans", icon: FiTrendingUp, path: "loans" },
+      { name: "New Lending", icon: FiTrendingUp, path: "createlending" },
       { name: "History", icon: FiCompass, path: "history" },
       { name: "FAQ", icon: FiCompass, path: "faq" },
     ];
