@@ -8,6 +8,7 @@ import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
 import { RainbowKitProvider, getDefaultWallets } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
+import { alchemyProvider } from 'wagmi/providers/alchemy';
 
 window.Buffer = require("buffer/").Buffer;
 
@@ -20,7 +21,10 @@ const { chains, provider } = configureChains(
       apiKey: process.env.REACT_APP_INFURA_API_KEY,
       priority: 0,
     }),
-    publicProvider({ priority: 1 }),
+    alchemyProvider({
+      priority:1
+    }),
+    publicProvider({ priority:2 }),
   ]
 );
 
