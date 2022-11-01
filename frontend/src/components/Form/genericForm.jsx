@@ -20,8 +20,6 @@ const initialValues = {
 };
 
 export const GenericForm = ({ handleSubmit, maxAmount, formType }) => {
-
-  console.log(maxAmount);
   const validationSchema = Yup.object({
     amount: Yup.number().required().min(0).max(maxAmount),
     duration: Yup.number().required().min(0).max(2),
