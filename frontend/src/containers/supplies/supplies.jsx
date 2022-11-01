@@ -1,19 +1,21 @@
-import { Container } from "@chakra-ui/react";
+import { Box, Container } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { OverlayModal } from "../../components/modal/overlayModal";
 import { useNftCollectionsForOwner } from "../../data/hooks/useCollectionsForOwner";
 import { useNftsForOwner } from "./../../data/hooks/useNftsForOwner";
 import { Nft } from "./../../data/models/nft";
+import { useNft } from "./../../data/context/nftContext";
+import { GenericForm } from "./../../components/Form/genericForm";
 
 export const Supplies = () => {
   const { ownerNfts } = useNftsForOwner();
   const { ownerNftCollections } = useNftCollectionsForOwner();
   const [nftModalData, setNftModalData] = useState([]);
+  const { selectedNft } = useNft();
 
   useEffect(() => {
-    if(!ownerNfts || !ownerNftCollections)
-      return;
-      
+    if (!ownerNfts || !ownerNftCollections) return;
+
     getNftModalData();
   }, [ownerNfts, ownerNftCollections]);
 
@@ -41,14 +43,27 @@ export const Supplies = () => {
     setNftModalData(nfts);
   };
 
+  const handleSubmit = (values) => {
+    console.log('hello');
+    console.log('values', JSON.stringify(values));
+  }
+
   return (
-    <Container m={3} mt={10} centerContent>
-      <OverlayModal
-        buttonText="Select NFT as guarantee"
-        title="Select NFT"
-        size ="xl"
-        modalData={nftModalData}
-      />
+    <Container m={3} mt={10}>
+      {!selectedNft && (
+        <OverlayModal
+          buttonText="Select NFT as guarantee"
+          title="Select NFT"
+          size="xl"
+          modalData={nftModalData}
+        />
+      )}
+
+      {selectedNft && (
+        <>
+          <GenericForm handleSubmit={handleSubmit} />
+        </>
+      )}
     </Container>
   );
 };

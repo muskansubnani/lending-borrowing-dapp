@@ -32,7 +32,7 @@ export const useNftsForOwner = () => {
     };
 
     getNftsForOwner();
-  }, [address, walletType]);
+  }, []);
 
   return { ownerNfts };
 };

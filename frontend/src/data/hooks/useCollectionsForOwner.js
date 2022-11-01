@@ -27,7 +27,7 @@ export const useNftCollectionsForOwner = () => {
       .then((response) => response.json())
       .then((response) => setOwnerNftCollections(response))
       .catch((err) => console.error(err));
-  }, [address, walletType]);
+  }, []);
 
   return { ownerNftCollections };
 };
