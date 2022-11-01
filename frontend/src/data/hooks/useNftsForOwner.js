@@ -2,11 +2,13 @@ import { useWallet } from "./../../data/context/walletContext";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { Alchemy, Network } from "alchemy-sdk";
+import { useNft } from './../context/nftContext';
 
 export const useNftsForOwner = () => {
   const { walletType } = useWallet();
   const { address } = useAccount();
   const [ownerNfts, setOwnerNfts] = useState(null);
+  const {selectedNft} = useNft();
 
   const config = {
     apiKey: process.env.REACT_APP_ALCHEMY_API_KEY,
@@ -20,7 +22,8 @@ export const useNftsForOwner = () => {
       !address ||
       !walletType ||
       walletType === "InActive" ||
-      walletType === "lender"
+      walletType === "lender" || 
+      selectedNft
     )
       return;
 

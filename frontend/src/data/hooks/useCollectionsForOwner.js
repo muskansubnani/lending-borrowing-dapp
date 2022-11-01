@@ -1,10 +1,12 @@
 import { useWallet } from "./../../data/context/walletContext";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
+import { useNft } from './../context/nftContext';
 
 export const useNftCollectionsForOwner = () => {
   const { walletType } = useWallet();
   const { address } = useAccount();
+  const {selectedNft} = useNft();
 
   const [ownerNftCollections, setOwnerNftCollections] = useState(null);
 
@@ -13,11 +15,12 @@ export const useNftCollectionsForOwner = () => {
       !address ||
       !walletType ||
       walletType === "InActive" ||
-      walletType === "lender"
+      walletType === "lender" || 
+      selectedNft
     ) {
       return;
     }
-
+    
     const options = { method: "GET" };
 
     const getCollections = async () => {
