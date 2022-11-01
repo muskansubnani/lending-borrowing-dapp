@@ -8,7 +8,9 @@ import {
   VStack,
   Text,
   Heading,
+  Select
 } from "@chakra-ui/react";
+
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
@@ -17,7 +19,9 @@ const initialValues = {
   duration: 0,
 };
 
-export const GenericForm = ({ handleSubmit, maxAmount }) => {
+export const GenericForm = ({ handleSubmit, maxAmount, formType }) => {
+
+  console.log(maxAmount);
   const validationSchema = Yup.object({
     amount: Yup.number().required().min(0).max(maxAmount),
     duration: Yup.number().required().min(0).max(2),
@@ -36,7 +40,7 @@ export const GenericForm = ({ handleSubmit, maxAmount }) => {
       <Box bg="white" p={10} rounded="md">
         <form onSubmit={formik.handleSubmit}>
           <VStack spacing={6} align="flex-start">
-            <Heading>Create Loan</Heading>
+            <Heading>New {formType}</Heading>
             <FormControl>
               <FormLabel htmlFor="amount">Amount</FormLabel>
               <Input
@@ -53,14 +57,18 @@ export const GenericForm = ({ handleSubmit, maxAmount }) => {
             </FormControl>
             <FormControl>
               <FormLabel htmlFor="duration">Duration</FormLabel>
-              <Input
-                id="duration"
+              <Select  id="duration"
                 name="duration"
                 type="number"
                 variant="filled"
+                placeholder ="select year(s)"
+                size ="md"
                 onChange={formik.handleChange}
-                value={formik.values.duration}
-              />
+                value={formik.values.duration}>
+                <option value = "1">1</option>
+                <option value = "2">2</option>
+              </Select>
+           
               {formik.touched.duration && formik.errors.duration && (
                 <Text color="tomato">{formik.errors.duration}</Text>
               )}
