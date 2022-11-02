@@ -13,9 +13,10 @@ import { CreateLending } from "./containers/lendings/createLending";
 import { History } from './containers/history/history';
 import { Faq } from './containers/faq/faq';
 import { NftProvider } from "./data/context/nftContext";
-
+import { LenderBorrowerContractProvider } from "./data/context/lenderBorrowerContractContext";
 const App = () => {
   return (
+    <LenderBorrowerContractProvider>
     <WalletProvider>
     <NftProvider>
       <BrowserRouter>
@@ -41,6 +42,7 @@ const App = () => {
       </BrowserRouter>
       </NftProvider>
     </WalletProvider>
+    </LenderBorrowerContractProvider>
   );
 };
 

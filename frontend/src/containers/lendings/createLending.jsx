@@ -6,5 +6,5 @@ export const CreateLending = () => {
  const {address} = useAccount();
  const { data} = useBalance({ addressOrName: address});
 
- return <GenericForm maxAmount={parseFloat(data.formatted)} formType = {"Lending"} />
+ return <GenericForm maxAmount={parseFloat(data?.formatted)} formType = {"Lending"} />
 };

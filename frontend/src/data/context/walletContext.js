@@ -8,8 +8,13 @@ export const useWallet = () => useContext(WalletContext);
 export const WalletProvider = ({ children }) => {
   const [walletType, setWalletType] = useState(null);
 
+  useEffect(() => {
+
+
+  }, []);
+
   return (
-    <WalletContext.Provider value={{ walletType, setWalletType }}>
+    <WalletContext.Provider value={walletType}>
       {children}
     </WalletContext.Provider>
   );
