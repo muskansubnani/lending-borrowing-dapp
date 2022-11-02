@@ -1,4 +1,4 @@
-import abi from "../../contracts/LendBorrower.json";
+import abi from "../../../contracts/LendBorrower.json";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";

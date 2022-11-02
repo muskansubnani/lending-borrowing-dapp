@@ -2,7 +2,7 @@ import { useNavigate } from "react-router";
 import { useAccount } from "wagmi";
 import { useWallet } from "./../../data/context/walletContext";
 import { useEffect } from "react";
-import { useContractWalletType } from './../../data/hooks/useContractWalletType';
+import { useContractWalletType } from './../../data/hooks/contract/useContractWalletType';
 
 export const HeaderContainer = () => {
   const navigation = useNavigate();
