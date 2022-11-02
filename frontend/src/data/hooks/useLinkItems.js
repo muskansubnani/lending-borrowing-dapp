@@ -18,7 +18,7 @@ export const useLinkItems = () => {
 const getLinkItems = (walletType) => {
   if (walletType === "borrower") {
     return [
-      { name: "New Loan", icon: FiTrendingUp, path: "supplies" },
+      { name: "New Loan", icon: FiTrendingUp, path: "createLoan" },
       { name: "Loans", icon: FiTrendingUp, path: "loans" },
       { name: "History", icon: FiCompass, path: "history" },
       { name: "FAQ", icon: FiCompass, path: "faq" },

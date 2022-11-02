@@ -7,41 +7,49 @@ import { AccountSignup } from "./containers/signup/accountSignup";
 import Header from "./components/header/header";
 import { HeaderContainer } from "./containers/header/headerContainer";
 import { Home } from "./containers/home/home";
-import { Supplies } from './containers/supplies/supplies';
-import { Loans } from './containers/loans/loans';
+import { Loans } from "./containers/loans/loans";
 import { CreateLending } from "./containers/lendings/createLending";
-import { History } from './containers/history/history';
-import { Faq } from './containers/faq/faq';
+import { History } from "./containers/history/history";
+import { Faq } from "./containers/faq/faq";
 import { NftProvider } from "./data/context/nftContext";
 import { LenderBorrowerContractProvider } from "./data/context/lenderBorrowerContractContext";
+import { CreateLoan } from "./containers/loans/createLoan";
+
 const App = () => {
   return (
     <LenderBorrowerContractProvider>
-    <WalletProvider>
-    <NftProvider>
-      <BrowserRouter>
-      <Dashboard>
-        <Header>
-            <Routes>
-              <Route exact path="/" element={<Home />} />
-              <Route exact path="/signup" element={<AccountSignup />} />
-              <Route exact path="/unauthorized" element={<Unauthorized />} />
-              <Route exact path="/faq" element={<Faq />} />
+      <WalletProvider>
+        <NftProvider>
+          <BrowserRouter>
+            <Dashboard>
+              <Header>
+                <Routes>
+                  <Route exact path="/" element={<Home />} />
+                  <Route exact path="/signup" element={<AccountSignup />} />
+                  <Route
+                    exact
+                    path="/unauthorized"
+                    element={<Unauthorized />}
+                  />
+                  <Route exact path="/faq" element={<Faq />} />
 
-              <Route element={<RequireWallet />}>
-              
-                <Route exact path="/supplies" element={<Supplies />} />
-                <Route exact path="/loans" element={<Loans />} />
-                <Route exact path="/createlending" element={<CreateLending/>} />
-                <Route exact path="/history" element={<History />} />
-              </Route>
-            </Routes>
-        </Header>
-        </Dashboard>
-        <HeaderContainer />
-      </BrowserRouter>
-      </NftProvider>
-    </WalletProvider>
+                  <Route element={<RequireWallet />}>
+                    <Route exact path="/createLoan" element={<CreateLoan />} />
+                    <Route exact path="/loans" element={<Loans />} />
+                    <Route
+                      exact
+                      path="/createlending"
+                      element={<CreateLending />}
+                    />
+                    <Route exact path="/history" element={<History />} />
+                  </Route>
+                </Routes>
+              </Header>
+            </Dashboard>
+            <HeaderContainer />
+          </BrowserRouter>
+        </NftProvider>
+      </WalletProvider>
     </LenderBorrowerContractProvider>
   );
 };
