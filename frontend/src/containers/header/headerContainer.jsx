@@ -14,6 +14,7 @@ export const HeaderContainer = () => {
     if (!address) {
       return;
     }
+    console.log(contractWalletType, 'wlaletType')
     setWalletType(contractWalletType);
   }, [address]);
 

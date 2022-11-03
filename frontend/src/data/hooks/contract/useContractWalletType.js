@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import { useLenderBorrowerContract } from "../../context/lenderBorrowerContractContext.js"
+import { useLenderBorrowerContract } from "../../context/lenderBorrowerContractContext.js";
 
 export const useContractWalletType = () => {
   const { address } = useAccount();
@@ -8,16 +8,16 @@ export const useContractWalletType = () => {
   const { lenderBorrowerContract } = useLenderBorrowerContract();
 
   useEffect(() => {
-
     const getAccountType = async () => {
+      console.log(lenderBorrowerContract, "contract");
+
       const accountType = await lenderBorrowerContract.getAccountType(address);
 
       setContractWalletType(accountType);
-      console.log(accountType, 'accType');
     };
 
     getAccountType().catch(console.error);
-  }, []);
+  }, [address]);
 
   return { contractWalletType };
 };
