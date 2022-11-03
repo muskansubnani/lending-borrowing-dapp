@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLenderBorrowerContract } from "./../../context/lenderBorrowerContractContext";
+import { ethers } from "ethers";
 
 export const useContractAvailableLiquidity = () => {
   const [availableLiquidity, setAvailableLiquidity] = useState(null);
@@ -11,12 +12,12 @@ export const useContractAvailableLiquidity = () => {
         await lenderBorrowerContract.getLiquidityAvailable();
 
       console.log("available Liquidity", liquidityAvailable);
+      setAvailableLiquidity(ethers.utils.formatEther(liquidityAvailable));
 
-      setAvailableLiquidity(liquidityAvailable.toNumber());
     };
 
     getAvailableLiquidity().catch(console.error);
   }, []);
 
-  return { availableLiquidity };
+  return availableLiquidity;
 };
