@@ -13,7 +13,7 @@ export const LenderBorrowerContractProvider = ({ children }) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
 
     const contract = new ethers.Contract(
-      "0xB358B0851Feb9853Cf2D016E5c2653A847659098",
+      "0x63105a61c867b2aB8Fd61098D0449C3FC43f5C83",
       contractAbi,
       provider
     );

@@ -22,7 +22,7 @@ const initialValues = {
 export const GenericForm = ({ handleSubmit, maxAmount, formType }) => {
   const validationSchema = Yup.object({
     amount: Yup.number().required().min(0).max(maxAmount),
-    duration: Yup.number().required().min(0).max(2),
+    duration: Yup.number().required().min(1).max(2),
   });
 
   const formik = useFormik({
