@@ -4,12 +4,11 @@ import { GenericForm } from "./../../components/Form/genericForm";
 import { useContractAvailableLiquidity } from "../../data/hooks/contract/useContractAvailableLiquidity";
 import { useNft } from "./../../data/context/nftContext";
 import { CreateLoanModal } from "./createLoanModal";
-import { ethers } from "ethers";
+import { useLenderBorrowerContract } from "../../data/context/lenderBorrowerContractContext";
 
 export const CreateLoan = () => {
   const availableLiquidity = useContractAvailableLiquidity();
-
-
+  const { lenderBorrowerContract } = useLenderBorrowerContract();
   console.log(availableLiquidity);
   const { selectedNft } = useNft();
   const maxAmount =
@@ -17,12 +16,34 @@ export const CreateLoan = () => {
       ? availableLiquidity
       : selectedNft?.floorPrice;
 
+  console.log(maxAmount);
 
-      console.log(maxAmount);
-
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     console.log("hello");
     console.log("values", JSON.stringify(values));
+
+    let loanId;
+
+    try {
+      console.log(lenderBorrowerContract);
+      console.log(
+        values.amount,
+        parseInt(values.duration),
+        selectedNft.contractAddress,
+        parseInt(selectedNft.tokenId),
+        10000
+      );
+      loanId = await lenderBorrowerContract.createLoan(
+        values.amount,
+        parseInt(values.duration),
+        selectedNft.contractAddress,
+        parseInt(selectedNft.tokenId),
+        10000
+      );
+      console.log(loanId);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
