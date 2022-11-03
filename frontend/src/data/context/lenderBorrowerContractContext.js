@@ -21,14 +21,10 @@ export const LenderBorrowerContractProvider = ({ children }) => {
     return contract;
   };
 
-  const [lenderBorrowerContract] = useState(
-    getContract()
-  );
+  const [lenderBorrowerContract] = useState(getContract());
 
   return (
-    <LenderBorrowerContractContext.Provider
-      value={{ lenderBorrowerContract }}
-    >
+    <LenderBorrowerContractContext.Provider value={{ lenderBorrowerContract }}>
       {children}
     </LenderBorrowerContractContext.Provider>
   );
