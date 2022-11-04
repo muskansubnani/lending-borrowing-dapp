@@ -11,10 +11,6 @@ export const HeaderContainer = () => {
   const {contractWalletType} = useContractWalletType();
 
   useEffect(() => {
-    if (!address) {
-      return;
-    }
-    console.log(contractWalletType, 'wlaletType')
     setWalletType(contractWalletType);
   }, [address]);
 
@@ -29,7 +25,7 @@ export const HeaderContainer = () => {
 
     navigation(`/`);
     return;
-  }, [contractWalletType]);
+  }, [contractWalletType, address]);
 
   return <div></div>;
 };
