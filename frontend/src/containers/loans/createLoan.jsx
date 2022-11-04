@@ -5,6 +5,7 @@ import { useContractAvailableLiquidity } from "../../data/hooks/contract/useCont
 import { useNft } from "./../../data/context/nftContext";
 import { CreateLoanModal } from "./createLoanModal";
 import { useLenderBorrowerContract } from "../../data/context/lenderBorrowerContractContext";
+import { createLoan } from "../../data/contractmethods/createLoan";
 
 export const CreateLoan = () => {
   const availableLiquidity = useContractAvailableLiquidity();
@@ -33,13 +34,16 @@ export const CreateLoan = () => {
         parseInt(selectedNft.tokenId),
         10000
       );
-      loanId = await lenderBorrowerContract.createLoan(
+
+      loanId = await createLoan(
+        lenderBorrowerContract,
         values.amount,
         parseInt(values.duration),
         selectedNft.contractAddress,
         parseInt(selectedNft.tokenId),
         10000
       );
+
       console.log(loanId);
     } catch (error) {
       console.log(error);
@@ -51,7 +55,11 @@ export const CreateLoan = () => {
       {!selectedNft && <CreateLoanModal />}
 
       {selectedNft && (
-        <GenericForm handleSubmit={handleSubmit} maxAmount={maxAmount} />
+        <GenericForm
+          handleSubmit={handleSubmit}
+          maxAmount={maxAmount}
+          formType={"Loan"}
+        />
       )}
     </Container>
   );
