@@ -1,5 +1,9 @@
 import React from "react";
+import { useTransactionsForAccount } from "./../../data/hooks/useTransactionsForAccount";
 
 export const Transactions = () => {
- return <div>Transactions </div>
+  const { userTransactions } = useTransactionsForAccount();
+  console.log("user transactioons", userTransactions);
+
+  return <div>Transactions </div>;
 };
