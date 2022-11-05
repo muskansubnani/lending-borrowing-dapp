@@ -3,13 +3,12 @@ import React from "react";
 import { useContractAvailableLiquidity } from "../../data/hooks/contract/useContractAvailableLiquidity";
 import { useNft } from "./../../data/context/nftContext";
 import { CreateLoanModal } from "./createLoanModal";
-import { useLenderBorrowerContract } from "../../data/context/lenderBorrowerContractContext";
-import { createLoan } from "../../data/contractmethods/createLoan";
 import { GenericForm } from './../../components/Form/genericForm';
+import { useBorrowerContractWrite } from "../../data/hooks/contract/write/useBorrowerContractWrite";
 
 export const CreateLoan = () => {
+  const  [createLoan] = useBorrowerContractWrite();
   const availableLiquidity = useContractAvailableLiquidity();
-  const { lenderBorrowerContract } = useLenderBorrowerContract();
   console.log(availableLiquidity);
   const { selectedNft } = useNft();
   const maxAmount =
@@ -26,22 +25,14 @@ export const CreateLoan = () => {
     let loanId;
 
     try {
-      console.log(lenderBorrowerContract);
       console.log(
         values.amount,
-        parseInt(values.duration),
-        selectedNft.contractAddress,
-        parseInt(selectedNft.tokenId),
-        10000
+        parseInt(values.duration)
       );
 
       loanId = await createLoan(
-        lenderBorrowerContract,
         values.amount,
-        parseInt(values.duration),
-        selectedNft.contractAddress,
-        parseInt(selectedNft.tokenId),
-        10000
+        parseInt(values.duration)
       );
 
       console.log(loanId);

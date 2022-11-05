@@ -1,14 +1,13 @@
 import React from "react";
 import { Container } from "@chakra-ui/react";
 import { useAccount, useBalance } from "wagmi";
-import { createLender  } from "../../data/contractmethods/createLender";
-import { useLenderBorrowerContract } from "../../data/context/lenderBorrowerContractContext";
-import { GenericForm } from './../../components/Form/genericForm';
+import { GenericForm } from "./../../components/Form/genericForm";
+import { useLenderContractWrite } from "../../data/hooks/contract/write/useLenderContractWrite";
 
 export const CreateLending = () => {
   const { address } = useAccount();
-  const { lenderBorrowerContract } = useLenderBorrowerContract();
   const { data } = useBalance({ addressOrName: address });
+  const [createLender] = useLenderContractWrite();
 
   const handleSubmit = async (values) => {
     console.log("hello");
@@ -16,34 +15,23 @@ export const CreateLending = () => {
     let x;
 
     try {
-      console.log(lenderBorrowerContract);
+      console.log(values.amount, parseInt(values.duration));
 
-      console.log(
-        values.amount,
-        parseInt(values.duration)
-      );
-
-      x = await createLender(
-        lenderBorrowerContract,
-        values.amount,
-        parseInt(values.duration),
-      );
+      x = await createLender(values.amount, parseInt(values.duration));
 
       console.log(x);
     } catch (error) {
       console.log(error);
     }
-
   };
 
   return (
     <Container m={3} mt={10}>
-
-    <GenericForm
-      handleSubmit={handleSubmit}
-      maxAmount={parseFloat(data?.formatted)}
-      formType={"Lending"}
-    />
+      <GenericForm
+        handleSubmit={handleSubmit}
+        maxAmount={parseFloat(data?.formatted)}
+        formType={"Lending"}
+      />
     </Container>
   );
 };
