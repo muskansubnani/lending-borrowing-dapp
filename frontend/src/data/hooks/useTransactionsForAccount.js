@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
+import { Alchemy, Network } from "alchemy-sdk";
 
 export const useTransactionsForAccount = () => {
   const { address } = useAccount();
@@ -8,19 +9,18 @@ export const useTransactionsForAccount = () => {
 
   useEffect(() => {
     const getTransactions = async () => {
-      const options = { method: "GET" };
-      console.log("address", address);
+      const config = {
+        apiKey: process.env.REACT_APP_ALCHEMY_API_KEY,
+        network: Network.ETH_GOERLI,
+      };
+    
+      const alchemy = new Alchemy(config);
 
-      const url = `https://goerli.etherscan.io/address/${contractAddress}`;
-      console.log("url", url);
-
-      const response = await fetch(url, options);
-
-      console.log("response", response);
-
-      const transactions = await response.json();
-
-      console.log("user transactioons", transactions);
+      const transactions = await alchemy.core.getAssetTransfers({
+        fromAddress: contractAddress,
+        toAddress: address,
+        category: ["external", "erc721"], //internal when it works :-/
+      });
 
       setUserTransactions(transactions);
     };
