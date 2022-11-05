@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import { getUsersLendings } from "../../data/contractmethods/getUserLendings";
 import { useLenderBorrowerContract } from "../../data/context/lenderBorrowerContractContext";
 import { getUsersLoans } from "../../data/contractmethods/getUserLoans";
+import { useContractWalletType } from '../../data/hooks/contract/useContractWalletType';
 
 export const AccountHistory = () => {
+ 
+    const {contractWalletType} = useContractWalletType();
     const [ lendings, setLendings ] = useState([]);
     const [ loans, setLoans ] = useState([]);
     const { lenderBorrowerContract } = useLenderBorrowerContract();
@@ -33,7 +36,7 @@ export const AccountHistory = () => {
          UserLoans().catch(console.error);
 
       }, []);
-    
+    console.log( contractWalletType);
     console.log(lendings);
     console.log(loans);
     
