@@ -1,11 +1,11 @@
 import { Container } from "@chakra-ui/react";
 import React from "react";
-import { GenericForm } from "./../../components/form/genericForm";
 import { useContractAvailableLiquidity } from "../../data/hooks/contract/useContractAvailableLiquidity";
 import { useNft } from "./../../data/context/nftContext";
 import { CreateLoanModal } from "./createLoanModal";
 import { useLenderBorrowerContract } from "../../data/context/lenderBorrowerContractContext";
 import { createLoan } from "../../data/contractmethods/createLoan";
+import { GenericForm } from './../../components/Form/genericForm';
 
 export const CreateLoan = () => {
   const availableLiquidity = useContractAvailableLiquidity();
