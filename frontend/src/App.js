@@ -9,11 +9,12 @@ import { HeaderContainer } from "./containers/header/headerContainer";
 import { Home } from "./containers/home/home";
 import { Loans } from "./containers/loans/loans";
 import { CreateLending } from "./containers/lendings/createLending";
-import { History } from "./containers/history/history";
+import { AccountHistory } from "./containers/history/history";
 import { Faq } from "./containers/faq/faq";
 import { NftProvider } from "./data/context/nftContext";
 import { LenderBorrowerContractProvider } from "./data/context/lenderBorrowerContractContext";
 import { CreateLoan } from "./containers/loans/createLoan";
+import { Transactions } from "./containers/transactions/transactions";
 
 const App = () => {
   return (
@@ -41,7 +42,8 @@ const App = () => {
                       path="/createlending"
                       element={<CreateLending />}
                     />
-                    <Route exact path="/history" element={<History />} />
+                    <Route exact path="/history" element={<AccountHistory/>} />
+                    <Route exact path="/transactions" element={<Transactions />} />
                   </Route>
                 </Routes>
               </Header>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Container } from "@chakra-ui/react";
-import { GenericForm } from "../../components/Form/genericForm";
+import { GenericForm } from "../../components/form/genericForm";
 import { useAccount, useBalance } from "wagmi";
 import { createLender  } from "../../data/contractmethods/createLender";
 import { useLenderBorrowerContract } from "../../data/context/lenderBorrowerContractContext";

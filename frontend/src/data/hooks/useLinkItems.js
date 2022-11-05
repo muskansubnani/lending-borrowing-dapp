@@ -19,8 +19,8 @@ const getLinkItems = (walletType) => {
   if (walletType === "borrower") {
     return [
       { name: "New Loan", icon: FiTrendingUp, path: "createLoan" },
-      { name: "Loans", icon: FiTrendingUp, path: "loans" },
-      { name: "History", icon: FiCompass, path: "history" },
+      { name: "Account History", icon: FiTrendingUp, path: "history" },
+      { name: "Transactions", icon: FiCompass, path: "transactions" },
       { name: "FAQ", icon: FiCompass, path: "faq" },
     ];
   }
@@ -28,7 +28,8 @@ const getLinkItems = (walletType) => {
   if (walletType === "lender") {
     return [
       { name: "New Lending", icon: FiTrendingUp, path: "createlending" },
-      { name: "History", icon: FiCompass, path: "history" },
+      { name: "Account History", icon: FiTrendingUp, path: "history" },
+      { name: "Transactions", icon: FiCompass, path: "transactions" },
       { name: "FAQ", icon: FiCompass, path: "faq" },
     ];
   }

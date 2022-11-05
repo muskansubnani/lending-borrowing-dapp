@@ -3,15 +3,12 @@ import { Container } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { getUsersLendings } from "../../data/contractmethods/getUserLendings";
 import { useLenderBorrowerContract } from "../../data/context/lenderBorrowerContractContext";
-import { getUsersLoans } from "../../data/contractmethods/getUserLoans";
 
-export const AccountHistory = () => {
+export const Lendings = () => {
     const [ lendings, setLendings ] = useState([]);
-    const [ loans, setLoans ] = useState([]);
     const { lenderBorrowerContract } = useLenderBorrowerContract();
 
     useEffect(() => {
-
         const UserLendings = async () => {
            let userLendings = await getUsersLendings(
                 lenderBorrowerContract
@@ -21,21 +18,9 @@ export const AccountHistory = () => {
         };
     
         UserLendings().catch(console.error);
-
-        const UserLoans = async () => {
-            let userLoans = await getUsersLoans(
-                 lenderBorrowerContract
-               );
-           console.log("loans",  userLoans);
-           setLoans( userLoans);
-         };
-     
-         UserLoans().catch(console.error);
-
       }, []);
     
     console.log(lendings);
-    console.log(loans);
     
   return (
     <Container m={3} mt={10}>
