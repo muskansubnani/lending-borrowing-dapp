@@ -5,40 +5,18 @@ import { getUsersLendings } from "../../data/contractmethods/getUserLendings";
 import { useLenderBorrowerContract } from "../../data/context/lenderBorrowerContractContext";
 import { getUsersLoans } from "../../data/contractmethods/getUserLoans";
 import { useContractWalletType } from '../../data/hooks/contract/useContractWalletType';
+import { useContractUserLendings } from '../../data/hooks/contract/useContractUserLendings';
+import { useContractUserLoans } from '../../data/hooks/contract/useContractUserLoans';
 
 export const AccountHistory = () => {
  
     const {contractWalletType} = useContractWalletType();
-    const [ lendings, setLendings ] = useState([]);
-    const [ loans, setLoans ] = useState([]);
-    const { lenderBorrowerContract } = useLenderBorrowerContract();
-
-    useEffect(() => {
-
-        const UserLendings = async () => {
-           let userLendings = await getUsersLendings(
-                lenderBorrowerContract
-              );
-          console.log("lendings",  userLendings);
-          setLendings( userLendings);
-        };
+    const userLendings = useContractUserLendings();
+    const userLoans = useContractUserLoans();
     
-        UserLendings().catch(console.error);
-
-        const UserLoans = async () => {
-            let userLoans = await getUsersLoans(
-                 lenderBorrowerContract
-               );
-           console.log("loans",  userLoans);
-           setLoans( userLoans);
-         };
-     
-         UserLoans().catch(console.error);
-
-      }, []);
     console.log( contractWalletType);
-    console.log(lendings);
-    console.log(loans);
+    console.log(userLendings);
+    console.log(userLoans);
     
   return (
     <Container m={3} mt={10}>
