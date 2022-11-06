@@ -16,7 +16,16 @@ export const AccountSignup = () => {
 
   const onSelectionChanged = (selectedAccountType) => {
     setWalletType(selectedAccountType);
-    navigation(`/`);
+
+    if(selectedAccountType === "borrower"){
+      navigation(`/createLoan`);
+      return;
+    }
+
+    if(selectedAccountType === "lender"){
+      navigation(`/createlending`);
+      return;
+    }
   };
 
   return (

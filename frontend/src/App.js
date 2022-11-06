@@ -6,7 +6,6 @@ import { Dashboard } from "./containers/dashboard/dashboard";
 import { AccountSignup } from "./containers/signup/accountSignup";
 import Header from "./components/header/header";
 import { HeaderContainer } from "./containers/header/headerContainer";
-import { Home } from "./containers/home/home";
 import { Loans } from "./containers/loans/loans";
 import { CreateLending } from "./containers/lendings/createLending";
 import { AccountHistory } from "./containers/history/history";
@@ -25,7 +24,6 @@ const App = () => {
             <Dashboard>
               <Header>
                 <Routes>
-                  <Route exact path="/" element={<Home />} />
                   <Route exact path="/signup" element={<AccountSignup />} />
                   <Route
                     exact
