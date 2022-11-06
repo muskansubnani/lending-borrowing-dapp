@@ -4,7 +4,7 @@ import { useContractAvailableLiquidity } from "../../data/hooks/contract/useCont
 import { useNft } from "./../../data/context/nftContext";
 import { CreateLoanModal } from "./createLoanModal";
 import { useBorrowerContractWrite } from "../../data/hooks/contract/write/useBorrowerContractWrite";
-import { GenericForm } from './../../components/Form/genericForm';
+import { GenericForm } from './../../components/form/genericForm';
 
 export const CreateLoan = () => {
   const  [createLoan] = useBorrowerContractWrite();

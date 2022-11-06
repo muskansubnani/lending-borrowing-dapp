@@ -2,7 +2,7 @@ import React from "react";
 import { Container } from "@chakra-ui/react";
 import { useAccount, useBalance } from "wagmi";
 import { useLenderContractWrite } from "../../data/hooks/contract/write/useLenderContractWrite";
-import { GenericForm } from './../../components/Form/genericForm';
+import { GenericForm } from './../../components/form/genericForm';
 
 export const CreateLending = () => {
   const { address } = useAccount();
