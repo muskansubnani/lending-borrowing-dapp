@@ -59,6 +59,7 @@ const getLinkItemsForExistingCustomer = (walletType) => {
 
   if (walletType === "lender") {
     return [
+      { name: "New Lending", icon: FiTrendingUp, path: "createlending" },
       { name: "Account History", icon: FiTrendingUp, path: "history" },
       { name: "Transactions", icon: FiCompass, path: "transactions" },
       { name: "FAQ", icon: FiCompass, path: "faq" },
