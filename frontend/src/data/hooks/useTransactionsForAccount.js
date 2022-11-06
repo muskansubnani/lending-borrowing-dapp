@@ -13,14 +13,16 @@ export const useTransactionsForAccount = () => {
         apiKey: process.env.REACT_APP_ALCHEMY_API_KEY,
         network: Network.ETH_GOERLI,
       };
-    
+
       const alchemy = new Alchemy(config);
 
-      const transactions = await alchemy.core.getAssetTransfers({
-        fromAddress: contractAddress,
-        toAddress: address,
+      const response = await alchemy.core.getAssetTransfers({
+        fromAddress: address,
+        toAddress: contractAddress,
         category: ["external", "erc721"], //internal when it works :-/
       });
+
+      const transactions = response["transfers"];
 
       setUserTransactions(transactions);
     };

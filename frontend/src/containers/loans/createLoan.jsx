@@ -3,8 +3,8 @@ import React from "react";
 import { useContractAvailableLiquidity } from "../../data/hooks/contract/useContractAvailableLiquidity";
 import { useNft } from "./../../data/context/nftContext";
 import { CreateLoanModal } from "./createLoanModal";
-import { GenericForm } from './../../components/form/genericForm';
 import { useBorrowerContractWrite } from "../../data/hooks/contract/write/useBorrowerContractWrite";
+import { GenericForm } from './../../components/Form/genericForm';
 
 export const CreateLoan = () => {
   const  [createLoan] = useBorrowerContractWrite();
