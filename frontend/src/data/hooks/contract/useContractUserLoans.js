@@ -12,11 +12,15 @@ export const useContractUserLoans = () => {
     const getUserLoans = async () => {
 
         let thisLoan = await lenderBorrowerContract.getUsersLoan();
+        
         let mappedLoans = [];
         // need to put a check if the loan struct is initialise to default values, same for lending struct
         // need to update contract to return all loans regardless of whether it's active or not
+        if(thisLoan.borrower !== "0x0000000000000000000000000000000000000000")
+        {
        // for(const thisLoan of loans)
        // {
+        
             let createTimeUnixMilliSeconds = new Date(thisLoan.creationTimeInSecs.toNumber() * 1000);
             
             mappedLoans.push(
@@ -37,6 +41,7 @@ export const useContractUserLoans = () => {
                 )
             );
        // }
+                }
     
        setUserLoans(mappedLoans);
     };
