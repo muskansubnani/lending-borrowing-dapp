@@ -52,6 +52,10 @@ export const AccountHistory = () => {
             accessor: "startDate",
           },
           {
+            Header: "Duration (years)",
+            accessor: "durationInYears",
+          },
+          {
             Header: "Interest",
             Cell: (props) => (
               <Button
@@ -131,7 +135,7 @@ export const AccountHistory = () => {
           },
           {
             Header: "Duration (years)",
-            accessor: "DurationInYears",
+            accessor: "durationInYears",
           },
           
         ],
@@ -183,9 +187,6 @@ export const AccountHistory = () => {
       },
     ]
   );
-
-
-
 
 if(contractWalletType =="lender")
 {
