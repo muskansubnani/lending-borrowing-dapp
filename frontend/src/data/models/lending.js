@@ -7,6 +7,7 @@ export class Lending {
     lenderStatus,
     interestEarnedPerDay,
     startDate,
+    durationInYears,
     latestInterestRedeemDate,
     startDateTimeMiliSecondsUnix,
     latestInterestRedeemDateUnix,

@@ -17,6 +17,8 @@ export const useContractUserLendings = () => {
         {
             let startTimeUnixMilliSeconds = new Date(thisLending.startTimeInSecs.toNumber() * 1000);
             let latestTimeRedeemInterestUnixMilliSeconds = new Date(thisLending.latestTimeOfInterestRedeemedInSecs.toNumber()*1000);
+            let durationInMilliSeconds = new Date(thisLending.durationInSecs.toNumber()*1000);
+            let durationInYears= thisLending.durationInSecs.toNumber()/ (60*60*24*365);
             if(thisLending.lender !== "0x0000000000000000000000000000000000000000")
             {
                 mappedLendings.push(
@@ -28,7 +30,12 @@ export const useContractUserLendings = () => {
                         thisLending.status,
                         ethers.utils.formatEther(thisLending.interestEarnedPerDay),
                         startTimeUnixMilliSeconds.toLocaleDateString("default"),
-                        latestTimeRedeemInterestUnixMilliSeconds.toLocaleDateString("default")
+                        durationInYears,
+                        latestTimeRedeemInterestUnixMilliSeconds.toLocaleDateString("default"),
+                        startTimeUnixMilliSeconds,
+                        latestTimeRedeemInterestUnixMilliSeconds,
+                        durationInMilliSeconds
+
                     )
                 );
             }
