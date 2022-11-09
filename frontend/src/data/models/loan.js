@@ -27,5 +27,6 @@ export class Loan {
     this.createdDate = createdDate;
     this.duration = duration;
     this.monthlyDeposit = monthlyDeposit;
+    
   }
 }

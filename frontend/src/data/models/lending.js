@@ -7,7 +7,10 @@ export class Lending {
     lenderStatus,
     interestEarnedPerDay,
     startDate,
-    latestInterestRedeemDate
+    latestInterestRedeemDate,
+    startDateTimeMiliSecondsUnix,
+    latestInterestRedeemDateUnix,
+    durationInMiliSecondsUnix
   ) {
     this.id = id;
     this.lenderAddress = lenderAddress;
@@ -17,5 +20,9 @@ export class Lending {
     this.interestEarnedPerDay = interestEarnedPerDay;
     this.startDate = startDate;
     this.latestInterestRedeemDate = latestInterestRedeemDate;
+    this.durationInYears= durationInYears;
+    this.startDateTimeMiliSecondsUnix = startDateTimeMiliSecondsUnix;
+    this.latestInterestRedeemDateUnix = latestInterestRedeemDateUnix;
+    this.durationInMiliSecondsUnix = durationInMiliSecondsUnix;
   }
 }
