@@ -1,6 +1,12 @@
 import React from "react";
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
-import { useEffect, useState, useMemo } from "react";
+import {
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+} from "@chakra-ui/react";
+import { useMemo } from "react";
 import { DataTable } from "./../../components/table/dataTable";
 import { useContractWalletType } from "../../data/hooks/contract/useContractWalletType";
 import { useContractUserLendings } from "../../data/hooks/contract/useContractUserLendings";
@@ -31,15 +37,21 @@ export const AccountHistory = () => {
           {
             Header: "Start Date",
             accessor: "startDate",
-          }, //,
-          // {
-          //   Header: "Duration",
-          //   accessor: "duration",
-          // },
+          },
+          {
+            Header: "Interest",
+            Cell: (props) => (
+              <button
+                type="button"
+                onClick={() => console.log('row clicked info', props.row.original)}
+              >
+                Redeem
+              </button>
+            ),
+          }
         ],
       },
-    ],
-    []
+    ]
   );
 
   const loanColumns = useMemo(
@@ -71,10 +83,20 @@ export const AccountHistory = () => {
             Header: "Duration",
             accessor: "duration",
           },
+          {
+            Header: "Interest",
+            Cell: (props) => (
+              <button
+                type="button"
+                onClick={() => console.log('row clicked info', props.row.original)}
+              >
+                Redeem
+              </button>
+            ),
+          },
         ],
       },
-    ],
-    []
+    ]
   );
 
   return (
