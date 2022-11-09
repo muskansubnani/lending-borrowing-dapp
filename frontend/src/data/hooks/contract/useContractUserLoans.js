@@ -36,7 +36,7 @@ export const useContractUserLoans = () => {
                     thisLoan.nftInfo.contractAddress,
                     thisLoan.nftInfo.tokenId.toNumber(),
                     createTimeUnixMilliSeconds.toLocaleDateString("default"),
-                    thisLoan.durationInYears,
+                    thisLoan.durationInYears.toNumber(),
                     ethers.utils.formatEther(thisLoan.monthlyDeposit)
                 )
             );
