@@ -5,7 +5,7 @@ import { Alchemy, Network } from "alchemy-sdk";
 export const useTransactionsForAccount = () => {
   const { address } = useAccount();
   const contractAddress = process.env.REACT_APP_LENDER_BORROWER_CONTRACT;
-  const [userTransactions, setUserTransactions] = useState(null);
+  const [userTransactions, setUserTransactions] = useState([]);
 
   useEffect(() => {
     const getTransactions = async () => {
