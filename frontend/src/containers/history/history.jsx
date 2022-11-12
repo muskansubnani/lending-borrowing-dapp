@@ -10,11 +10,9 @@ import {
   Box,
   Heading,
   Button,
-  FormControl,
-  FormLabel,
+  HStack,
   Input,
-  Select,
-  HStack
+  Text
 } from "@chakra-ui/react";
 
 import { useMemo } from "react";
@@ -22,17 +20,30 @@ import { DataTable } from "./../../components/table/dataTable";
 import { useContractWalletType } from "../../data/hooks/contract/useContractWalletType";
 import { useContractUserLendings } from "../../data/hooks/contract/useContractUserLendings";
 import { useContractUserLoans } from "../../data/hooks/contract/useContractUserLoans";
+import { useBorrowerContractWrite } from "../../data/hooks/contract/write/useBorrowerContractWrite";
+import { useLenderContractWrite } from "../../data/hooks/contract/write/useLenderContractWrite";
 
 export const AccountHistory = () => {
-  
+  const  [redeemInterest, retrieveFunds] = useLenderContractWrite();
+  const [payLoanMonthlyDeposit, payCompleteLoan] = useBorrowerContractWrite();
   const { contractWalletType } = useContractWalletType();
   const userLendings = useContractUserLendings();
   const userLoans = useContractUserLoans();
+
+  const maturedLendings = userLendings.filter(x => x.status == 1);
+  const maturedLoans = userLoans.filter(x => x.status == 1);
+  const activeLoan = userLoans.find( x => x.status == 0);
+  const activeLendings = userLendings.filter ( x => x.status == 0 );
 
   console.log(contractWalletType);
   console.log(userLendings);
   console.log(userLoans);
 
+  console.log(maturedLendings);
+  console.log(maturedLoans);
+
+  console.log(activeLoan);
+  console.log(activeLendings);
 
   const activeLenderColumns = useMemo(
     () => [
@@ -60,7 +71,7 @@ export const AccountHistory = () => {
             Cell: (props) => (
               <Button
               type="submit"  colorScheme="purple" width="auto"
-              onClick={ () => console.log('row clicked info', props.row.original) }
+              onClick={ async () => redeemInterest (props.row.original.Id) }
             >
               Redeem Interest
             </Button>
@@ -72,43 +83,10 @@ export const AccountHistory = () => {
             Cell: (props) => (
               <Button
               type="submit"  colorScheme="purple" width="auto" 
-              onClick={ () => console.log('row clicked info', props.row.original) }
+              onClick={ async () => retrieveFunds( props.row.original.Id) }
             >
               Retrieve Matured Funds
             </Button>
-            ),
-          }
-        ],
-      },
-    ]
-  );
-
-  const activeLoanColumns = useMemo(
-    () => [
-      {
-        Header: "Active Loans",
-        columns: [
-          {
-            Header: "Amount",
-            accessor: "lendingAmount",
-          },
-          {
-            Header: "Rate Of Return",
-            accessor: "rateOfReturn",
-          },
-          {
-            Header: "Start Date",
-            accessor: "startDate",
-          },
-          {
-            Header: "Interest",
-            Cell: (props) => (
-              <Button
-                type="submit"  colorScheme="purple"  width="full"
-                onClick={ () => console.log('row clicked info', props.row.original) }
-              >
-                Redeem Interest
-              </Button>
             ),
           }
         ],
@@ -136,8 +114,7 @@ export const AccountHistory = () => {
           {
             Header: "Duration (years)",
             accessor: "durationInYears",
-          },
-          
+          },  
         ],
       },
     ]
@@ -171,18 +148,7 @@ export const AccountHistory = () => {
           {
             Header: "Duration",
             accessor: "duration",
-          },
-          {
-            Header: "Interest",
-            Cell: (props) => (
-              <button
-                type="button"
-                onClick={() => console.log('row clicked info', props.row.original)}
-              >
-                Redeem
-              </button>
-            ),
-          },
+          }
         ],
       },
     ]
@@ -200,7 +166,7 @@ if(contractWalletType =="lender")
   <Heading as='h4' size='md'  mb={5}>
   Current Activity
   </Heading>
-  <DataTable columns={activeLenderColumns} data={userLendings} />
+  <DataTable columns={activeLenderColumns} data={activeLendings} />
   </Box>
   <Box>
   <Heading as='h4' size='md' mb={5}>
@@ -213,86 +179,70 @@ if(contractWalletType =="lender")
       </TabList>
       <TabPanels>
         <TabPanel>
-          <DataTable columns={lenderColumns} data={userLendings} />
+          <DataTable columns= {lenderColumns} data= {maturedLendings} />
         </TabPanel>
         <TabPanel>
-          <DataTable columns={loanColumns} data={userLoans} />
+          <DataTable columns= {loanColumns} data= {maturedLoans} />
         </TabPanel>
       </TabPanels>
     </Tabs>
   </Box>
 </VStack>
+
   );
 }
-
-else 
-
-{return (
+else if( contractWalletType =="lender" && activeLoan )
+{
+  return (
 <VStack
   divider={<StackDivider borderColor='gray.200' />}
   spacing={4}
-  align='stretch'
->
-  <Box>
+  align='stretch'>
+   <Box>
           <VStack spacing={6} align="flex-start">
          
             <Heading>Active Loan</Heading>
-            <HStack>
-            <FormControl>
-              <FormLabel htmlFor="amount">Amount</FormLabel>
-              <Input
-                id="amount"
-                name="amount"
-                type="number"
-                variant="filled"
-                disabled
-              />
             
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="duration">Duration</FormLabel>
-              <Select  id="duration"
-                name="duration"
-                type="number"
-                variant="filled"
-                placeholder ="select year(s)"
-                size ="md"
-                >
-                <option value = "1">1</option>
-                <option value = "2">2</option>
-              </Select>
+            <HStack>
+            <Text as='b' width="100%" > Loan Amount </Text>
+            <Input size='sm' width="100%"  value = {activeLoan.loanAmount} disabled />
 
-            </FormControl>
-            <Button type="submit" colorScheme="purple" width="full">
-              Create
-            </Button>
+            <Text as='b' width="100%">  Interest Rate </Text>
+            <Input  size='sm' value = {activeLoan.interest} disabled/>
+           
+            <Text as='b' width="100%">  Nft Address </Text>
+            <Input size='sm'  value = {activeLoan.nftAddress} disabled/>
             </HStack>
+
+            <HStack>
+            <Text as='b' width="100%">  Nft Token ID </Text>
+            <Input width="100%"  value = {activeLoan.nftTokenId} size='sm' disabled/>
+            
+            <Text as='b' width="100%"> Next Payment Date </Text>
+            <Input width="100%" value = {activeLoan.loanAmount}  size='sm' disabled/>
+            
+            <Text as='b' width="100%" > Duration (years) </Text>
+            <Input width="100%"  value = {activeLoan.duration}  size='sm' disabled/>
+            </HStack>
+
+            <HStack>
+
+            <Text as='b' width="100%" > Remaining Amount </Text>
+            <Input value = {activeLoan.remainingAmount} size='sm' disabled/>
+
+            <Text as='b' width="100%">  Monthly Payment </Text>
+            <Input width="100%" value = {activeLoan.loanAmount} size='sm' disabled/>
+            
+            <Button type="submit"  colorScheme="purple"  width="full" onClick={ () => payLoanMonthlyDeposit(activeLoan.Id)}   > Pay Monthly Deposit </Button>
+
+            <Button type="submit"  colorScheme="purple"  width="full"  onClick={ () => payCompleteLoan( activeLoan.Id) } > Pay Complete Loan </Button> 
+            </HStack>
+
+
           </VStack>
-    
-
-
-
-
-
-
-
-
-
-
-
-
-   loan
-
-
-
-
   </Box>
 
-
-
   <Box>
-    
-
   <Tabs>
       <TabList>
         <Tab>Lending</Tab>
@@ -300,19 +250,15 @@ else
       </TabList>
       <TabPanels>
         <TabPanel>
-          <DataTable columns={lenderColumns} data={[...userLendings]} />
+          <DataTable columns={lenderColumns} data={maturedLendings} />
         </TabPanel>
         <TabPanel>
-          <DataTable columns={loanColumns} data={[...userLoans]} />
+          <DataTable columns={loanColumns} data={maturedLoans} />
         </TabPanel>
       </TabPanels>
     </Tabs>
-
-
   </Box>
 </VStack>
-
-
 
 );
 

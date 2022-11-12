@@ -2,6 +2,7 @@ import { useLenderBorrowerContract } from "./../../../context/lenderBorrowerCont
 import { useNft } from "./../../../context/nftContext";
 
 export const useBorrowerContractWrite = () => {
+  
   const { lenderBorrowerContract } = useLenderBorrowerContract();
   const { selectedNft } = useNft();
 
@@ -17,5 +18,14 @@ export const useBorrowerContractWrite = () => {
     return loanId;
   };
 
-  return [createLoan];
+
+  const payLoanMonthlyDeposit = async (loanId) => {
+    await lenderBorrowerContract.payLoanMonthlyDeposit(loanId);
+  };
+
+  const payCompleteLoan = async (loanId) => {
+    await lenderBorrowerContract.payCompleteLoan(loanId);
+  };
+
+  return [createLoan, payLoanMonthlyDeposit , payCompleteLoan];
 };
