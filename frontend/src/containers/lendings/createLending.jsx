@@ -7,7 +7,7 @@ import { GenericForm } from './../../components/form/genericForm';
 export const CreateLending = () => {
   const { address } = useAccount();
   const { data } = useBalance({ addressOrName: address });
-  const [createLender] = useLenderContractWrite();
+  const {createLender} = useLenderContractWrite();
 
   const handleSubmit = async (values) => {
     console.log("hello");
