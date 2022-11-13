@@ -5,7 +5,6 @@ export const useLenderContractWrite = () => {
   const { lenderBorrowerContract } = useLenderBorrowerContract();
 
   const createLender = async (amount, duration) => {
-    console.log(amount.toString());
     const lenderTx = await lenderBorrowerContract.createLender(duration, {
       value: ethers.utils.parseEther(amount.toString()),
     });
@@ -23,5 +22,5 @@ export const useLenderContractWrite = () => {
     await lenderBorrowerContract.retrieveLendersFund(lenderId);
   };
 
-  return [createLender, redeemInterest, retrieveFunds];
+  return {createLender, redeemInterest, retrieveFunds};
 };
