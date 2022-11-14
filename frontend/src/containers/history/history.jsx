@@ -25,7 +25,7 @@ import { useLenderContractWrite } from "../../data/hooks/contract/write/useLende
 
 export const AccountHistory = () => {
   const { retrieveFunds, redeemInterest } = useLenderContractWrite();
-  const [payLoanMonthlyDeposit, payCompleteLoan] = useBorrowerContractWrite();
+  const { payLoanMonthlyDeposit, payCompleteLoan } = useBorrowerContractWrite();
   const { contractWalletType } = useContractWalletType();
   const userLendings = useContractUserLendings();
   const userLoans = useContractUserLoans();
