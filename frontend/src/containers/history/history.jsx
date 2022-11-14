@@ -86,7 +86,6 @@ export const AccountHistory = () => {
               type="submit"
               colorScheme="purple"
               width="auto"
-              disabled = {() => (props.row.original.startDateTimeMiliSecondsUnix +props.row.original.startDateTimeMiliSecondsUnix) }
               onClick={async () => retrieveFunds(props.row.original.id)}
             >
               Retrieve Matured Funds
