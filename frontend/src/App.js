@@ -6,7 +6,6 @@ import { Dashboard } from "./containers/dashboard/dashboard";
 import { AccountSignup } from "./containers/signup/accountSignup";
 import Header from "./components/header/header";
 import { HeaderContainer } from "./containers/header/headerContainer";
-import { Loans } from "./containers/loans/loans";
 import { CreateLending } from "./containers/lendings/createLending";
 import { AccountHistory } from "./containers/history/history";
 import { Faq } from "./containers/faq/faq";
@@ -34,7 +33,6 @@ const App = () => {
 
                   <Route element={<RequireWallet />}>
                     <Route exact path="/createLoan" element={<CreateLoan />} />
-                    <Route exact path="/loans" element={<Loans />} />
                     <Route
                       exact
                       path="/createlending"
