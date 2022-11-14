@@ -43,8 +43,10 @@ export const useLenderContractWrite = () => {
         isClosable: true,
       });
     } catch (exception) {
+      console.log(exception);
+
       toast({
-        title: "Transaction failed",
+        title: `${exception.message}`,
         position: "bottom-right",
         status: "error",
         isClosable: true,

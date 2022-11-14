@@ -1,31 +1,34 @@
-import React from "react";
+import { React, useState } from "react";
 import { Container } from "@chakra-ui/react";
 import { useAccount, useBalance } from "wagmi";
 import { useLenderContractWrite } from "../../data/hooks/contract/write/useLenderContractWrite";
 import { GenericForm } from "./../../components/form/genericForm";
+import { useNavigate } from "react-router";
+import { Loading } from "../../components/loading/loading";
 
 export const CreateLending = () => {
+  const [loading, setLoading] = useState(false);
   const { address } = useAccount();
   const { data } = useBalance({ addressOrName: address });
   const { createLender } = useLenderContractWrite();
+  const navigation = useNavigate();
 
   const handleSubmit = async (values) => {
+    setLoading(true);
     console.log("hello");
     console.log("values", JSON.stringify(values));
     let x;
+    console.log(values.amount, parseInt(values.duration));
 
-    try {
-      console.log(values.amount, parseInt(values.duration));
-
-      x = await createLender(values.amount, parseInt(values.duration));
-
-      console.log(x);
-    } catch (error) {
-      console.log(error);
-    }
+    x = await createLender(values.amount, parseInt(values.duration));
+    setLoading(false);
+    navigation(`/history`);
+    console.log(x);
   };
 
-  return (
+  return loading ? (
+    <Loading />
+  ) : (
     <Container m={3} mt={10}>
       <GenericForm
         handleSubmit={handleSubmit}

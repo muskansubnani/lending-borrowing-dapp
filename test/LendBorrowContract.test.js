@@ -87,13 +87,14 @@ it("should get all Loaners", async function() {
 
 it("should get given addresses loan", async function() {
     
-    let loanUser = accounts[3];
+    loanUser = accounts[3];
 
-    const givenAddressLoan = await lendBorrowInstance.getUsersLoan({ from: loanUser}); 
+    const givenAddressLoan = await lendBorrowInstance.getUsersLoan({from: loanUser}); 
 
-    assert.equal(givenAddressLoan.borrower, loanUser);
+    assert.equal(givenAddressLoan.length, 1);
+    assert.equal(givenAddressLoan[0].borrower, loanUser);
 
-    })
+  })
 
 it("should get given address lendings", async function() { 
 
@@ -123,11 +124,12 @@ it("should create Loan correctly", async function() {
         borrower: loanUser,
         nft :
         {
-           nftContract :testNftContractAddress, 
+           nftContract : testNftContractAddress, 
            nftTokenId : 3
         },
         duration: loanDuration,
-        monthlyDeposit: 916
+        monthlyDeposit: 916,
+        lastPaymentTimeinSecs: 0
       };
 
     const result = await lendBorrowInstance.createLoan(loanAmount, loanDuration, testNftContractAddress, 3, nftFloorPrice, { from: loanUser});

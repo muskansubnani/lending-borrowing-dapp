@@ -30,10 +30,10 @@ export const AccountHistory = () => {
   const userLendings = useContractUserLendings();
   const userLoans = useContractUserLoans();
 
-  const maturedLendings = userLendings.filter((x) => x.status == 1);
-  const maturedLoans = userLoans.filter((x) => x.status == 1);
-  const activeLoan = userLoans.find((x) => x.status == 0);
-  const activeLendings = userLendings.filter((x) => x.status == 0);
+  const maturedLendings = userLendings.filter((x) => x.status === 1);
+  const maturedLoans = userLoans.filter((x) => x.status === 1);
+  const activeLoan = userLoans.find((x) => x.status === 0);
+  const activeLendings = userLendings.filter((x) => x.status === 0);
 
   console.log(contractWalletType);
   console.log(userLendings);
@@ -86,6 +86,7 @@ export const AccountHistory = () => {
               type="submit"
               colorScheme="purple"
               width="auto"
+              disabled = {() => (props.row.original.startDateTimeMiliSecondsUnix +props.row.original.startDateTimeMiliSecondsUnix) }
               onClick={async () => retrieveFunds(props.row.original.id)}
             >
               Retrieve Matured Funds
@@ -96,7 +97,7 @@ export const AccountHistory = () => {
     },
   ]);
 
-  const lenderColumns = useMemo(() => [
+  const maturedLenderColumns = useMemo(() => [
     {
       Header: "Archived Lendings",
       columns: [
@@ -120,7 +121,7 @@ export const AccountHistory = () => {
     },
   ]);
 
-  const loanColumns = useMemo(() => [
+  const maturedLoanColumns = useMemo(() => [
     {
       Header: "Archived Loans",
       columns: [
@@ -152,7 +153,7 @@ export const AccountHistory = () => {
     },
   ]);
 
-  if (contractWalletType == "lender") {
+  if (contractWalletType === "lender"  && activeLendings) {
     return (
       <VStack
         divider={<StackDivider borderColor="gray.200" />}
@@ -176,17 +177,17 @@ export const AccountHistory = () => {
             </TabList>
             <TabPanels>
               <TabPanel>
-                <DataTable columns={lenderColumns} data={maturedLendings} />
+                <DataTable columns={maturedLenderColumns} data={maturedLendings} />
               </TabPanel>
               <TabPanel>
-                <DataTable columns={loanColumns} data={maturedLoans} />
+                <DataTable columns={maturedLoanColumns} data={maturedLoans} />
               </TabPanel>
             </TabPanels>
           </Tabs>
         </Box>
       </VStack>
     );
-  } else if (contractWalletType == "lender" && activeLoan) {
+  } else if (contractWalletType === "borrower" && activeLoan) {
     return (
       <VStack
         divider={<StackDivider borderColor="gray.200" />}
@@ -306,10 +307,10 @@ export const AccountHistory = () => {
             </TabList>
             <TabPanels>
               <TabPanel>
-                <DataTable columns={lenderColumns} data={maturedLendings} />
+                <DataTable columns={maturedLenderColumns} data={maturedLendings} />
               </TabPanel>
               <TabPanel>
-                <DataTable columns={loanColumns} data={maturedLoans} />
+                <DataTable columns={maturedLoanColumns} data={maturedLoans} />
               </TabPanel>
             </TabPanels>
           </Tabs>

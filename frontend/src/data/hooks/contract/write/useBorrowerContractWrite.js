@@ -8,15 +8,30 @@ export const useBorrowerContractWrite = () => {
   const toast = useToast();
 
   const createLoan = async (amount, duration) => {
-    const loanId = await lenderBorrowerContract.createLoan(
-      amount,
-      duration,
-      selectedNft.contractAddress,
-      selectedNft.tokenId,
-      selectedNft.floorPrice
-    );
+    try {
+      const loanId = await lenderBorrowerContract.createLoan(
+        amount,
+        duration,
+        selectedNft.contractAddress,
+        selectedNft.tokenId,
+        selectedNft.floorPrice
+      );
 
-    return loanId;
+      toast({
+        title: "Transaction succeded",
+        position: "bottom-right",
+        status: "success",
+        isClosable: true,
+      });
+      return loanId;
+    } catch {
+      toast({
+        title: "Transaction failed",
+        position: "bottom-right",
+        status: "error",
+        isClosable: true,
+      });
+    }
   };
 
   const payLoanMonthlyDeposit = async (loanId) => {

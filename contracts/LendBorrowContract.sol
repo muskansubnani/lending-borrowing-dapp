@@ -121,15 +121,21 @@ contract LendBorrowContract is Ownable, ReentrancyGuard {
     }
 
     // Method to get all Loaners
-    function getUsersLoan() external view returns ( Loan memory) {
-        Loan memory result;
-
-        for(uint i=0; i<loans.length; i++) {
+    function getUsersLoan() external view returns ( Loan[] memory) {
+        Loan[] memory temporary = new Loan[](loans.length);
+        uint counter = 0;
+        for(uint i=0; i < loans.length; i++) {
             if(loans[i].borrower == msg.sender) {
-                result = loans[i];
-                break;
+                temporary[counter] = loans[i];
+                counter++;
             }
         }
+
+        Loan[] memory result = new Loan[](counter);
+        for(uint i=0; i < counter; i++) {
+            result[i] = temporary[i];
+        }
+        
         return result;
     }
 
