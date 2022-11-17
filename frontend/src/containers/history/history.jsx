@@ -15,20 +15,20 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-import { useMemo } from "react";
 import { DataTable } from "./../../components/table/dataTable";
 import { useContractWalletType } from "../../data/hooks/contract/useContractWalletType";
 import { useContractUserLendings } from "../../data/hooks/contract/useContractUserLendings";
 import { useContractUserLoans } from "../../data/hooks/contract/useContractUserLoans";
 import { useBorrowerContractWrite } from "../../data/hooks/contract/write/useBorrowerContractWrite";
-import { useLenderContractWrite } from "../../data/hooks/contract/write/useLenderContractWrite";
+import { useHistoryColumns } from "./../../data/hooks/useHistoryColumns";
 
 export const AccountHistory = () => {
-  const { retrieveFunds, redeemInterest } = useLenderContractWrite();
   const { payLoanMonthlyDeposit, payCompleteLoan } = useBorrowerContractWrite();
   const { contractWalletType } = useContractWalletType();
   const userLendings = useContractUserLendings();
   const userLoans = useContractUserLoans();
+  const { activeLenderColumns, maturedLenderColumns, maturedLoanColumns } =
+    useHistoryColumns();
 
   const maturedLendings = userLendings.filter((x) => x.status === 1);
   const maturedLoans = userLoans.filter((x) => x.status === 1);
@@ -45,114 +45,7 @@ export const AccountHistory = () => {
   console.log(activeLoan);
   console.log(activeLendings);
 
-  const activeLenderColumns = useMemo(() => [
-    {
-      Header: "Active Lendings",
-      columns: [
-        {
-          Header: "Amount",
-          accessor: "lendingAmount",
-        },
-        {
-          Header: "Rate Of Return",
-          accessor: "rateOfReturn",
-        },
-        {
-          Header: "Start Date",
-          accessor: "startDate",
-        },
-        {
-          Header: "Duration (years)",
-          accessor: "durationInYears",
-        },
-        {
-          Header: "Interest",
-          Cell: (props) => (
-            <Button
-              type="submit"
-              colorScheme="purple"
-              width="auto"
-              onClick={async () => redeemInterest(props.row.original.id)}
-            >
-              Redeem Interest
-            </Button>
-          ),
-        },
-
-        {
-          Header: "Matured Funds",
-          Cell: (props) => (
-            <Button
-              type="submit"
-              colorScheme="purple"
-              width="auto"
-              onClick={async () => retrieveFunds(props.row.original.id)}
-            >
-              Retrieve Matured Funds
-            </Button>
-          ),
-        },
-      ],
-    },
-  ]);
-
-  const maturedLenderColumns = useMemo(() => [
-    {
-      Header: "Archived Lendings",
-      columns: [
-        {
-          Header: "Amount",
-          accessor: "lendingAmount",
-        },
-        {
-          Header: "Rate Of Return",
-          accessor: "rateOfReturn",
-        },
-        {
-          Header: "Start Date",
-          accessor: "startDate",
-        },
-        {
-          Header: "Duration (years)",
-          accessor: "durationInYears",
-        },
-      ],
-    },
-  ]);
-
-  const maturedLoanColumns = useMemo(() => [
-    {
-      Header: "Archived Loans",
-      columns: [
-        {
-          Header: "Amount",
-          accessor: "loanAmount",
-        },
-        {
-          Header: "Interest Rate",
-          accessor: "interest",
-        },
-        {
-          Header: "Collateral NFT Address",
-          accessor: "nftAddress",
-        },
-        {
-          Header: "Collateral NFT Token ID",
-          accessor: "nftTokenId",
-        },
-        {
-          Header: "Start Date",
-          accessor: "createdDate",
-        },
-        {
-          Header: "Duration",
-          accessor: "duration",
-        },
-      ],
-    },
-  ]);
-
-  if (contractWalletType === "lender"  && activeLendings) {
+  if (contractWalletType === "lender" && activeLendings) {
     return (
       <VStack
         divider={<StackDivider borderColor="gray.200" />}
@@ -176,7 +69,10 @@ export const AccountHistory = () => {
             </TabList>
             <TabPanels>
               <TabPanel>
-                <DataTable columns={maturedLenderColumns} data={maturedLendings} />
+                <DataTable
+                  columns={maturedLenderColumns}
+                  data={maturedLendings}
+                />
               </TabPanel>
               <TabPanel>
                 <DataTable columns={maturedLoanColumns} data={maturedLoans} />
@@ -306,7 +202,10 @@ export const AccountHistory = () => {
             </TabList>
             <TabPanels>
               <TabPanel>
-                <DataTable columns={maturedLenderColumns} data={maturedLendings} />
+                <DataTable
+                  columns={maturedLenderColumns}
+                  data={maturedLendings}
+                />
               </TabPanel>
               <TabPanel>
                 <DataTable columns={maturedLoanColumns} data={maturedLoans} />
