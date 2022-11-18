@@ -41,7 +41,6 @@ To engage with the Dapp you will need the following :
 * Start local Ganache Node
 	> In a separate terminal execute run the following command : Ganache
 * Deploy script locally
-	>  Inside truffle folder run the following command
    > * $ truffle console --network development
    > * $ truffle compile
    > * $ truffle migrate
