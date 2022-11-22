@@ -1,7 +1,7 @@
 # Lending Borrowing Dapp
 
 ## About The Project
-This DApp allows one to borrow ETH against a NFT collatoral as well as earn interest on lending ETH to the platform for a given duration in a transparent manner using blockchain and smart contracts.
+This DApp allows one to borrow ETH against a NFT collateral as well as earn interest on lending ETH to the platform for a given duration in a transparent manner using blockchain and smart contracts.
 
 
 ## Technology Stack & Tools
