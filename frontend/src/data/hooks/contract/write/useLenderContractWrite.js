@@ -24,7 +24,7 @@ export const useLenderContractWrite = () => {
       return receipt;
     } catch (exception) {
       toast({
-        title: "Transaction failed",
+        title: `${exception.error.message}`,
         position: "bottom-right",
         status: "error",
         isClosable: true,
@@ -44,7 +44,7 @@ export const useLenderContractWrite = () => {
       });
     } catch (exception) {
       toast({
-        title: `${exception.message}`,
+        title: `${exception.error.message}`,
         position: "bottom-right",
         status: "error",
         isClosable: true,
@@ -64,7 +64,7 @@ export const useLenderContractWrite = () => {
       });
     } catch (exception) {
       toast({
-        title: "Transaction failed",
+        title: `${exception.error.message}`,
         position: "bottom-right",
         status: "error",
         isClosable: true,

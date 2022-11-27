@@ -24,9 +24,9 @@ export const useBorrowerContractWrite = () => {
         isClosable: true,
       });
       return loanId;
-    } catch {
+    } catch (exception) {
       toast({
-        title: "Transaction failed",
+        title: `${exception.error.message}`,
         position: "bottom-right",
         status: "error",
         isClosable: true,
@@ -44,9 +44,9 @@ export const useBorrowerContractWrite = () => {
         status: "success",
         isClosable: true,
       });
-    } catch {
+    } catch (exception) {
       toast({
-        title: "Transaction failed",
+        title: `${exception.error.message}`,
         position: "bottom-right",
         status: "error",
         isClosable: true,
@@ -64,9 +64,9 @@ export const useBorrowerContractWrite = () => {
         status: "success",
         isClosable: true,
       });
-    } catch {
+    } catch (exception) {
       toast({
-        title: "Transaction failed",
+        title: `${exception.error.message}`,
         position: "bottom-right",
         status: "error",
         isClosable: true,
