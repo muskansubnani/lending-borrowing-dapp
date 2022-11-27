@@ -9,8 +9,6 @@ export const useContractWalletType = () => {
 
   useEffect(() => {
     const getAccountType = async () => {
-      console.log(lenderBorrowerContract, "contract");
-
       const accountType = await lenderBorrowerContract.getAccountType(address);
 
       setContractWalletType(accountType);

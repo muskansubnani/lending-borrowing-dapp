@@ -12,8 +12,6 @@ export const LenderBorrowerContractProvider = ({ children }) => {
     const contractAbi = abi.abi;
     const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
     const signer = provider.getSigner();
-
-    console.log('contractAddress', process.env.REACT_APP_LENDER_BORROWER_CONTRACT);
     
     const contract = new ethers.Contract(
       process.env.REACT_APP_LENDER_BORROWER_CONTRACT,

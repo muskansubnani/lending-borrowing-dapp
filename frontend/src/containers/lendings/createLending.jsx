@@ -15,15 +15,11 @@ export const CreateLending = () => {
 
   const handleSubmit = async (values) => {
     setLoading(true);
-    console.log("hello");
-    console.log("values", JSON.stringify(values));
-    let x;
-    console.log(values.amount, parseInt(values.duration));
 
-    x = await createLender(values.amount, parseInt(values.duration));
+    await createLender(values.amount, parseInt(values.duration));
+
     setLoading(false);
     navigation(`/history`);
-    console.log(x);
   };
 
   return loading ? (

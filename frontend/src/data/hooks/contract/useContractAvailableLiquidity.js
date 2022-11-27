@@ -11,9 +11,7 @@ export const useContractAvailableLiquidity = () => {
       const liquidityAvailable =
         await lenderBorrowerContract.getLiquidityAvailable();
 
-      console.log("available Liquidity", liquidityAvailable);
       setAvailableLiquidity(ethers.utils.formatEther(liquidityAvailable));
-
     };
 
     getAvailableLiquidity().catch(console.error);

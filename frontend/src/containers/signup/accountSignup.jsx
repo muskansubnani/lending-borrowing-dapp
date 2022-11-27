@@ -12,8 +12,6 @@ export const AccountSignup = () => {
   const { address } = useAccount();
   const { setWalletType } = useWallet();
 
-  console.log(availableLiquidity);
-
   const onSelectionChanged = (selectedAccountType) => {
     setWalletType(selectedAccountType);
 

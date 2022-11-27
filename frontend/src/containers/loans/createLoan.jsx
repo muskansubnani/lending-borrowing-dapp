@@ -19,20 +19,11 @@ export const CreateLoan = () => {
       ? availableLiquidity
       : selectedNft?.floorPrice;
 
-  console.log(maxAmount);
-
   const handleSubmit = async (values) => {
     setLoading(true);
-    console.log("hello");
-    console.log("values", JSON.stringify(values));
 
-    let loanId;
+    await createLoan(values.amount, parseInt(values.duration));
 
-    console.log(values.amount, parseInt(values.duration));
-
-    loanId = await createLoan(values.amount, parseInt(values.duration));
-
-    console.log(loanId);
     setLoading(false);
     navigation(`/history`);
   };

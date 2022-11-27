@@ -35,16 +35,6 @@ export const AccountHistory = () => {
   const activeLoan = userLoans.find((x) => x.status === 0);
   const activeLendings = userLendings.filter((x) => x.status === 0);
 
-  console.log(contractWalletType);
-  console.log(userLendings);
-  console.log(userLoans);
-
-  console.log(maturedLendings);
-  console.log(maturedLoans);
-
-  console.log(activeLoan);
-  console.log(activeLendings);
-
   if (contractWalletType === "lender" && activeLendings) {
     return (
       <VStack
