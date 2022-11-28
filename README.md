@@ -10,6 +10,7 @@ This DApp allows one to borrow ETH against a NFT collateral as well as earn inte
 - Truffle (Development Framework)
 - Ethers.js (Blockchain Interaction)
 - React.js (Frontend Framework)
+- Chakra UI (React Component Library)
 - Wagmi (React Hooks for Ethereum) 
 - RainbowKit (Wallet Connection)🌈
          
